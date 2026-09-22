@@ -6,6 +6,10 @@ import type { GoBS } from "@/lib/wasm";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function MonthCalendarWidget() {
   const state = useGoBS();
   const [year, setYear] = useState(2083);
@@ -26,6 +30,7 @@ export function MonthCalendarWidget() {
 
 function Grid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }) {
   const result = useMemo(() => goBS.monthCalendar(year, month), [goBS, year, month]);
+  const today = useMemo(() => goBS.adToBS(todayISO()).value, [goBS]);
 
   if (result.error || !result.value) {
     return <div className="py-10 text-center text-sm text-accent">{result.error}</div>;
@@ -39,11 +44,11 @@ function Grid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }
         {monthName} {year}
         {monthNameNepali ? <span className="ml-2 text-muted">({monthNameNepali})</span> : null}
       </div>
-      <table className="w-full table-fixed text-center text-sm">
+      <table className="mcw-table w-full table-fixed text-center text-sm">
         <thead>
           <tr>
             {WEEKDAYS.map((w) => (
-              <th key={w} className="pb-2 font-normal text-muted">
+              <th key={w} className="pb-2 text-center font-normal text-muted">
                 {w}
               </th>
             ))}
@@ -52,11 +57,25 @@ function Grid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }
         <tbody>
           {weeks.map((week, i) => (
             <tr key={i}>
-              {week.map((day, j) => (
-                <td key={j} className="py-1.5">
-                  {day === null ? "" : <span className="inline-flex size-7 items-center justify-center rounded-full font-mono hover:bg-background">{day}</span>}
-                </td>
-              ))}
+              {week.map((day, j) => {
+                const isToday = day !== null && today?.year === year && today?.month === month && today?.day === day;
+                return (
+                  <td key={j} className="py-1.5 text-center">
+                    {day === null ? (
+                      ""
+                    ) : (
+                      <span
+                        className={
+                          "inline-flex size-7 items-center justify-center rounded-full font-mono " +
+                          (isToday ? "bg-accent font-semibold text-accent-foreground" : "hover:bg-background")
+                        }
+                      >
+                        {day}
+                      </span>
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

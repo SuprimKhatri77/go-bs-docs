@@ -151,6 +151,19 @@ a.anchor-heading {
   padding: 0.5rem 1rem 0.5rem 0;
   vertical-align: baseline;
 }
+/* Same leak pattern as the fenced-code fix above: this is a real widget's
+   <table> (MonthCalendarWidget), not markdown content, but it's rendered
+   inside .prose, so the generic markdown-table styling above (left-align,
+   asymmetric padding, per-row borders) was overriding its own centering. */
+table.mcw-table th,
+table.mcw-table td {
+  border-bottom: none;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  color: inherit;
+  font-weight: inherit;
+}
 .prose blockquote {
   border-left: 2px solid var(--border);
   padding-left: 1rem;
