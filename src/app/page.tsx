@@ -63,9 +63,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-border-soft">
-        <div className="mx-auto max-w-[680px] px-5 py-[clamp(56px,8vw,96px)] sm:px-8">
-          <LandingDemo />
+      <section id="try-it" className="border-t border-border-soft">
+        <div className="mx-auto max-w-[1140px] px-5 py-[clamp(72px,10vw,132px)] sm:px-8">
+          <div className="mx-auto max-w-[680px]">
+            <h2 className="text-[clamp(24px,2.6vw,30px)] font-semibold tracking-tight">Try it yourself.</h2>
+            <p className="mt-[18px] text-base leading-relaxed text-muted text-pretty">
+              Every result below comes from the real go-bs library, compiled to WebAssembly and running in your
+              browser right now — not a JavaScript reimplementation of the conversion logic.
+            </p>
+            <div className="mt-8">
+              <LandingDemo />
+            </div>
+          </div>
         </div>
       </section>
 
