@@ -1,0 +1,127 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "JSON & database/sql",
+  description:
+    "Use go-bs Bikram Sambat dates directly in JSON APIs and SQL databases: Date implements encoding.TextMarshaler, TextUnmarshaler, sql.Scanner and driver.Valuer.",
+  path: "/docs/api/encoding",
+});
+
+<DocsHeader
+  title="JSON & database/sql"
+  description="Date implements the standard encoding and database/sql interfaces, so it crosses API and database boundaries as a plain YYYY-MM-DD string."
+/>
+
+<Callout>Added in v0.6.0.</Callout>
+
+## Text encoding
+
+<ApiEntry signature="func (d Date) MarshalText() ([]byte, error)">
+
+Implements `encoding.TextMarshaler`, rendering `d` the same way as `String` (`"YYYY-MM-DD"`). Like
+`String`, it doesn't validate `d` and never returns an error. An invalid or zero-value `Date`
+still marshals, the same way `time.Time` behaves.
+
+</ApiEntry>
+
+<ApiEntry signature="func (d *Date) UnmarshalText(data []byte) error">
+
+Implements `encoding.TextUnmarshaler`. Accepts the same `"YYYY-MM-DD"` shape as `Parse` and
+returns the same errors: `ErrInvalidFormat` for a malformed string, and `ErrInvalidYear`,
+`ErrInvalidMonth` or `ErrInvalidDay` for one that isn't a real, supported BS date. `d` is left
+unchanged on error.
+
+</ApiEntry>
+
+`encoding/json` uses these methods in place of its default field-by-field struct encoding. A `Date`
+field therefore serializes as `"2083-06-06"` instead of `{"Year":2083,"Month":6,"Day":6}`.
+`encoding/xml` and `encoding/gob` use them too, and so does `encoding/json` when a `Date` is a
+map key.
+
+```go
+type Invoice struct {
+	ID     int     `json:"id"`
+	Issued bs.Date `json:"issued"`
+}
+
+d, _ := bs.NewDate(2083, 6, 6)
+
+b, _ := json.Marshal(Invoice{ID: 1, Issued: d})
+// b == `{"id":1,"issued":"2083-06-06"}`
+
+var inv Invoice
+err := json.Unmarshal([]byte(`{"id":1,"issued":"2083-06-32"}`), &inv)
+// err: bs: invalid day: 32 (month 6 of year 2083 has 31 days)
+// errors.Is(err, bs.ErrInvalidDay) == true
+
+b, _ = json.Marshal(map[bs.Date]int{d: 3})
+// b == `{"2083-06-06":3}`
+```
+
+Because decoding validates, a request body with an impossible BS date is rejected by
+`json.Unmarshal` itself, before your handler code sees it.
+
+<Callout>
+  The zero `Date{}` marshals as `"0000-00-00"`, not as `null` or an omitted field. For an optional
+  date, use a `*Date` field: `nil` encodes as `null`, and `null` decodes back to `nil`.
+</Callout>
+
+## database/sql
+
+<ApiEntry signature="func (d Date) Value() (driver.Value, error)">
+
+Implements `database/sql/driver.Valuer`, so a `Date` can be passed directly as a query argument.
+It always writes the `"YYYY-MM-DD"` string form and never returns an error. Like `MarshalText`, it
+doesn't validate `d`, and it has no special case for the zero `Date{}`: that writes
+`"0000-00-00"`, not SQL `NULL`.
+
+</ApiEntry>
+
+<ApiEntry signature="func (d *Date) Scan(value any) error">
+
+Implements `database/sql.Scanner`, so a row column can be scanned directly into a `Date`. Accepts:
+
+- `string` or `[]byte` in `"YYYY-MM-DD"` form, validated the same way as `Parse`.
+- `time.Time`, which most drivers return for native `DATE`/`DATETIME` columns. Its year, month
+  and day are validated as a BS date (see the warning below).
+- `nil`, which resets `d` to the zero `Date{}`.
+
+Any other type returns an error like `bs: cannot scan int into Date`. That error doesn't wrap any
+of the [sentinel errors](/docs/api/errors).
+
+</ApiEntry>
+
+```go
+d, _ := bs.NewDate(2083, 6, 6)
+
+_, err := db.Exec(`INSERT INTO invoices (id, issued) VALUES (?, ?)`, 1, d)
+
+var issued bs.Date
+err = db.QueryRow(`SELECT issued FROM invoices WHERE id = ?`, 1).Scan(&issued)
+```
+
+<Callout tone="warn">
+  `Scan` takes a `time.Time`'s year, month and day **literally as BS components**. It doesn't run
+  `ADToBS`. This keeps the round trip symmetric: you write the string `"2083-06-06"`, a
+  `DATE` column may hand it back as a `time.Time` for 2083-06-06, and you get the same BS date.
+
+If the column holds **Gregorian** dates, scan into a `time.Time` and call `ADToBS` yourself. Most
+Gregorian years in use (1979–2100) are also valid BS years, so scanning an AD date straight into
+a `Date` usually won't error. The date will just be wrong: AD 2026-09-22 comes out as BS
+2026-09-22, not the correct BS 2083-06-06.
+</Callout>
+
+### Nullable columns
+
+Since the zero `Date{}` isn't written as `NULL`, use one of these for a nullable column:
+
+- `*Date`: a `nil` pointer is written as `NULL`, and a `NULL` column scans into a `nil` pointer.
+- `sql.Null[bs.Date]` (Go 1.22+): `Valid` is `false` for `NULL`.
+
+```go
+var n sql.Null[bs.Date]
+
+_ = n.Scan("2083-06-06") // n.Valid == true, n.V == bs.Date{2083, 6, 6}
+_ = n.Scan(nil)          // n.Valid == false
+```

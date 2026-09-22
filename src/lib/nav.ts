@@ -56,6 +56,11 @@ export const docsNav: NavSection[] = [
         description: "MonthCalendar, WeeksInMonth, FirstWeekdayOfMonth.",
       },
       {
+        title: "JSON & database/sql",
+        href: "/docs/api/encoding",
+        description: "MarshalText, UnmarshalText, Value, Scan.",
+      },
+      {
         title: "Errors",
         href: "/docs/api/errors",
         description: "Sentinel errors and errors.Is.",
