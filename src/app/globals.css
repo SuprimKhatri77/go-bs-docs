@@ -177,6 +177,15 @@ a.anchor-heading {
 .prose figure[data-rehype-pretty-code-figure] code {
   display: grid;
   counter-reset: line;
+  /* Undo the inline-code styling above: `.prose > :not(pre) code` matches
+     this element too, since rehype-pretty-code's <figure> wrapper (a direct
+     child of .prose) is not itself a <pre>, so the :not(pre) exclusion
+     doesn't reach the <pre><code> nested inside it. */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-size: inherit;
 }
 .prose figure[data-rehype-pretty-code-figure] code > [data-line] {
   padding: 0 1rem;
@@ -186,6 +195,16 @@ a.anchor-heading {
    declaration, so it can be theme-switched — this is what actually reads
    them. Every highlighted span carries both variables; only the active
    theme's is used. */
+/* Same leaked inline-code styling as above (`.prose > :not(pre) code`
+   matches into shiki-html's own <pre><code>, since the wrapping div isn't
+   a <pre> itself) — undo it here too. */
+.shiki-html code {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+}
 .prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"],
 .shiki-html [style*="--shiki-light"] {
   color: var(--shiki-light);
