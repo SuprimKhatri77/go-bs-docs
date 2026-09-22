@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       { source: "/docs", destination: "/docs/getting-started", permanent: true },
     ];
   },
+  // Markdown versions of the docs pages, for LLMs and agents.
+  async rewrites() {
+    return [{ source: "/docs/:path*.md", destination: "/md/docs/:path*" }];
+  },
 };
 
 // Plugins are referenced by module name (string), not imported directly:

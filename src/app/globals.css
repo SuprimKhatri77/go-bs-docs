@@ -114,13 +114,13 @@ a.anchor-heading {
 .prose li::marker {
   color: var(--muted);
 }
-.prose a:not(.anchor-heading) {
+.prose a:not(.anchor-heading, .not-prose a) {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
 }
-.prose a:not(.anchor-heading):hover {
+.prose a:not(.anchor-heading, .not-prose a):hover {
   text-decoration-color: var(--accent);
 }
 .prose > :not(pre) code {

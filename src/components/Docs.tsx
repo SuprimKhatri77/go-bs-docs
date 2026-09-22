@@ -1,9 +1,15 @@
 import { codeToHtml } from "shiki";
+import { PageActions } from "./PageActions";
 
 export function DocsHeader({ title, description }: { title: string; description: string }) {
   return (
     <div className="mb-8">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+        <div className="shrink-0 sm:pt-1.5">
+          <PageActions />
+        </div>
+      </div>
       <p className="mt-2 max-w-2xl text-muted">{description}</p>
     </div>
   );
