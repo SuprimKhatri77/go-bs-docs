@@ -31,18 +31,21 @@ const FEATURES = [
 export default function Home() {
   return (
     <main>
-      <section id="top" className="mx-auto max-w-[1140px] px-5 pt-16 pb-12 text-center sm:px-8 sm:pt-24 sm:pb-16">
-        <h1 className="mx-auto max-w-[18ch] text-[clamp(34px,5vw,58px)] leading-[1.05] font-semibold tracking-tight text-balance">
+      <section
+        id="top"
+        className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[1140px] flex-col items-center justify-center px-5 py-16 text-center sm:px-8"
+      >
+        <h1 className="mx-auto max-w-[20ch] text-[clamp(44px,7vw,84px)] leading-[1.02] font-semibold tracking-tight text-balance">
           Bikram Sambat, computed correctly.
         </h1>
-        <p className="mx-auto mt-5 max-w-[46ch] text-[17px] leading-relaxed text-muted text-pretty">
+        <p className="mx-auto mt-7 max-w-[52ch] text-[19px] leading-relaxed text-muted text-pretty sm:text-[21px]">
           A Go library for Gregorian ↔ Bikram Sambat conversion, verified against Nepal&apos;s official calendar —
           not derived from a formula.
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/docs/getting-started"
-            className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex h-11 items-center rounded-[9px] bg-primary px-6 text-[15px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             Get started
           </Link>
@@ -50,18 +53,20 @@ export default function Home() {
             href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
+            className="inline-flex h-11 items-center rounded-[9px] border border-border px-5 text-[15px] text-muted transition-colors hover:border-muted hover:text-foreground"
           >
             pkg.go.dev reference →
           </a>
         </div>
-        <div className="mt-6 flex justify-center">
+        <div className="mt-7 flex justify-center">
           <InstallCopy />
         </div>
       </section>
 
-      <section className="mx-auto max-w-[680px] px-5 pb-12 sm:px-8 sm:pb-20">
-        <LandingDemo />
+      <section className="border-t border-border-soft">
+        <div className="mx-auto max-w-[680px] px-5 py-[clamp(56px,8vw,96px)] sm:px-8">
+          <LandingDemo />
+        </div>
       </section>
 
       <div className="border-t border-b border-border-soft">
