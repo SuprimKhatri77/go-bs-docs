@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Calendar data: sources & verification" };
+export const metadata = docsMetadata({
+  title: "Calendar data: sources & verification",
+  description:
+    "Where go-bs's Bikram Sambat calendar data comes from, and how it was verified against Nepal's official calendar rather than trusted from other libraries.",
+  path: "/docs/data-verification",
+});
 
 <DocsHeader
   title="Calendar data: sources & verification"

@@ -3,6 +3,14 @@ import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
+  // There's no landing page: the docs are the site. /docs has no index page
+  // of its own either, so both go straight to the first docs page.
+  async redirects() {
+    return [
+      { source: "/", destination: "/docs/getting-started", permanent: true },
+      { source: "/docs", destination: "/docs/getting-started", permanent: true },
+    ];
+  },
 };
 
 // Plugins are referenced by module name (string), not imported directly:

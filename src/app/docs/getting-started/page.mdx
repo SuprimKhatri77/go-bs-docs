@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Getting started" };
+export const metadata = docsMetadata({
+  title: "Getting started",
+  description:
+    "Install go-bs and make your first Gregorian ↔ Bikram Sambat (Nepali calendar) date conversion in Go. Zero dependencies, Go 1.22+.",
+  path: "/docs/getting-started",
+});
 
 <DocsHeader
   title="Getting started"

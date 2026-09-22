@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry } from "@/components/Docs";
 
-export const metadata = { title: "Comparison" };
+export const metadata = docsMetadata({
+  title: "Comparison",
+  description:
+    "Compare Bikram Sambat dates in Go: Before, After, Equal and Compare on go-bs Date values.",
+  path: "/docs/api/comparison",
+});
 
 <DocsHeader title="Comparison" description="Ordering and equality for Date values." />
 

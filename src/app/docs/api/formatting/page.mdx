@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Formatting & Nepali digits" };
+export const metadata = docsMetadata({
+  title: "Formatting & Nepali digits",
+  description:
+    "Format Bikram Sambat dates in Go with custom layouts, English and Nepali month names, and conversion between ASCII and Devanagari (Nepali) digits.",
+  path: "/docs/api/formatting",
+});
 
 <DocsHeader
   title="Formatting & Nepali digits"

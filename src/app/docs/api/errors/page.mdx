@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader } from "@/components/Docs";
 
-export const metadata = { title: "Errors" };
+export const metadata = docsMetadata({
+  title: "Errors",
+  description:
+    "go-bs returns errors, not panics. Reference for its sentinel errors (ErrInvalidYear, ErrInvalidMonth, ErrInvalidDay and more) and matching them with errors.Is.",
+  path: "/docs/api/errors",
+});
 
 <DocsHeader
   title="Errors"

@@ -1,7 +1,13 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry } from "@/components/Docs";
 import { MonthCalendarWidget } from "@/components/MonthCalendarWidget";
 
-export const metadata = { title: "Calendar-grid helpers" };
+export const metadata = docsMetadata({
+  title: "Calendar-grid helpers",
+  description:
+    "Render a Bikram Sambat month view in Go with go-bs's MonthCalendar, WeeksInMonth and FirstWeekdayOfMonth calendar-grid helpers.",
+  path: "/docs/api/calendar-grid",
+});
 
 <DocsHeader
   title="Calendar-grid helpers"

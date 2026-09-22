@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Conversion" };
+export const metadata = docsMetadata({
+  title: "Conversion",
+  description:
+    "Convert dates between Gregorian (AD) and Bikram Sambat (BS) in Go with go-bs's ADToBS and BSToAD — timezone-safe, covering BS 1979–2100.",
+  path: "/docs/api/conversion",
+});
 
 <DocsHeader
   title="Conversion"

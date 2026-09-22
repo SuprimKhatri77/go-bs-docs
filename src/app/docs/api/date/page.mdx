@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Date, parsing & validation" };
+export const metadata = docsMetadata({
+  title: "Date, parsing & validation",
+  description:
+    "The go-bs Date type: construct, parse and validate Bikram Sambat dates in Go with NewDate, Parse, MustParse, TodayBS, DaysInMonth and DaysInYear.",
+  path: "/docs/api/date",
+});
 
 <DocsHeader
   title="Date, parsing & validation"

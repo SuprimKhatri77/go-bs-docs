@@ -1,6 +1,12 @@
+import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
 
-export const metadata = { title: "Arithmetic & ranges" };
+export const metadata = docsMetadata({
+  title: "Arithmetic & ranges",
+  description:
+    "Date arithmetic for Bikram Sambat dates in Go: AddDays, NextMonth, DaysBetween, StartOfMonth, EndOfYear, DayOfWeek, Age and more in go-bs.",
+  path: "/docs/api/arithmetic",
+});
 
 <DocsHeader
   title="Arithmetic & ranges"
