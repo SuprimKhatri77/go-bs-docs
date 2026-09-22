@@ -54,11 +54,20 @@ variable initialization with a literal, known-good date string — most callers 
 
 <ApiEntry signature="func TodayBS() (Date, error)">
 
-Returns the current system date converted to Bikram Sambat. Returns an error wrapping
+Returns today's date in Nepal, converted to Bikram Sambat. Returns an error wrapping
 `ErrOutOfRange` if today's date falls outside the supported range — i.e. this code running
 before `MinBSYear` or after `MaxBSYear`'s corresponding Gregorian date.
 
 </ApiEntry>
+
+<Callout tone="note">
+  `TodayBS` always means today **in Nepal** (UTC+05:45), not wherever the calling process happens
+  to be running — it ignores the server's configured timezone entirely. This matters because cloud
+  VMs and containers commonly default to UTC: for roughly 5h45m of every day, Nepal has already
+  moved into the next calendar day while a UTC server hasn't, so a naive `time.Now()`-based
+  implementation would report yesterday's BS date as "today" for part of every day. `TodayBS`
+  accounts for this so callers don't have to.
+</Callout>
 
 <ApiEntry signature="func (d Date) Valid() bool">
 
