@@ -48,21 +48,20 @@ const FEATURES = [
 export default function Home() {
   return (
     <main>
-      <section className="mx-auto max-w-6xl px-4 pt-14 pb-10 sm:px-6 sm:pt-20">
+      <section className="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6 sm:pt-16">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Bikram Sambat dates,
-            <br className="hidden sm:inline" /> done properly in Go.
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Bikram Sambat dates, done properly in Go.
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-muted">
+          <p className="mx-auto mt-3 max-w-xl text-muted">
             A dependency-free Go library for converting between Gregorian (AD) and
             Bikram Sambat (BS), Nepal&apos;s calendar — with verified calendar data
             and a complete, well-tested date API.
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/docs/getting-started"
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               Get started
             </Link>

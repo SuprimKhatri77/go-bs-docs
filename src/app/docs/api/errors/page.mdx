@@ -1,0 +1,29 @@
+import { DocsHeader } from "@/components/Docs";
+
+export const metadata = { title: "Errors" };
+
+<DocsHeader
+  title="Errors"
+  description="go-bs returns errors, not panics (except MustParse, which documents that it panics). Every error wraps one of these sentinels."
+/>
+
+| Sentinel              | Returned when                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `ErrInvalidYear`       | A BS year is outside `MinBSYear..MaxBSYear`.                                                                                          |
+| `ErrInvalidMonth`      | A BS month is not in the range 1..12.                                                                                                 |
+| `ErrInvalidDay`        | A BS day is not a valid day of the given month — either out of the generic 1..32 bound, or greater than the actual days in that month/year. |
+| `ErrOutOfRange`        | An AD date falls outside the Gregorian range corresponding to `MinBSYear..MaxBSYear`.                                                 |
+| `ErrInvalidFormat`     | A string passed to `Parse` is not shaped like `"YYYY-MM-DD"`.                                                                         |
+| `ErrInvalidDateOrder`  | `Age`'s `birthBS` is after its `todayBS`.                                                                                             |
+
+## Checking for a specific error
+
+Every returned error wraps one of the sentinels above via `fmt.Errorf`'s `%w` verb, so use
+`errors.Is` rather than comparing strings or equality directly.
+
+```go
+_, err := bs.NewDate(2080, 1, 32)
+if errors.Is(err, bs.ErrInvalidDay) {
+	// handle specifically
+}
+```

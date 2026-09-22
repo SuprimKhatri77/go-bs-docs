@@ -4,24 +4,30 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #16130f;
-  --muted: #6b6560;
-  --surface: #f7f5f3;
-  --border: #e6e2dd;
-  --accent: #b3282d;
+  --foreground: #09090b;
+  --muted: #71717a;
+  --surface: #f4f4f5;
+  --surface-hover: #ececee;
+  --border: #e4e4e7;
+  --accent: #2563eb;
   --accent-foreground: #ffffff;
-  --code-bg: #f7f5f3;
+  --primary: #09090b;
+  --primary-foreground: #ffffff;
+  --code-bg: #f6f8fa;
 }
 
 .dark {
-  --background: #0f0d0b;
-  --foreground: #f2efe9;
-  --muted: #a39c93;
-  --surface: #191512;
-  --border: #2c2620;
-  --accent: #e0575c;
-  --accent-foreground: #16130f;
-  --code-bg: #17130f;
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --surface: #18181b;
+  --surface-hover: #202023;
+  --border: #27272a;
+  --accent: #3b82f6;
+  --accent-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --code-bg: #0d1117;
 }
 
 @theme inline {
@@ -29,9 +35,12 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -44,4 +53,146 @@ body {
 ::selection {
   background: var(--accent);
   color: var(--accent-foreground);
+}
+
+/* rehype-autolink-headings wraps each heading in an <a>; we don't want the
+   whole heading to look/act like a normal link, just to be clickable with a
+   hover affordance. */
+a.anchor-heading {
+  color: inherit;
+  text-decoration: none;
+  scroll-margin-top: 6rem;
+}
+
+/* MDX prose */
+.prose h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 6rem;
+}
+.prose h2:first-child {
+  margin-top: 0;
+}
+.prose h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  scroll-margin-top: 6rem;
+}
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 1rem 1.25rem;
+  line-height: 1.7;
+}
+.prose ul {
+  list-style: disc;
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose li {
+  margin-bottom: 0.25rem;
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+.prose li::marker {
+  color: var(--muted);
+}
+.prose a:not(.anchor-heading) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.prose a:not(.anchor-heading):hover {
+  text-decoration-color: var(--accent);
+}
+.prose > :not(pre) code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.85em;
+}
+.prose strong {
+  font-weight: 600;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+.prose th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 1rem 0.5rem 0;
+}
+.prose td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 1rem 0.5rem 0;
+  vertical-align: baseline;
+}
+.prose blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 1rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+/* rehype-pretty-code output (fenced blocks only — bypassInlineCode: true
+   keeps single-backtick code as plain <code>, styled by the rule above). */
+.prose figure[data-rehype-pretty-code-figure] {
+  margin: 0 0 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.prose [data-rehype-pretty-code-title] {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.375rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.prose figure[data-rehype-pretty-code-figure] pre {
+  margin: 0;
+  padding: 1rem 0;
+  overflow-x: auto;
+  background: var(--code-bg) !important;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.prose figure[data-rehype-pretty-code-figure] code {
+  display: grid;
+  counter-reset: line;
+}
+.prose figure[data-rehype-pretty-code-figure] code > [data-line] {
+  padding: 0 1rem;
+  border-left: 2px solid transparent;
+}
+/* Shiki emits per-token color as CSS custom properties, not a `color`
+   declaration, so it can be theme-switched — this is what actually reads
+   them. Every highlighted span carries both variables; only the active
+   theme's is used. */
+.prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"] {
+  color: var(--shiki-light);
+}
+.dark .prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"] {
+  color: var(--shiki-dark);
+}
+.prose [data-highlighted-line] {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-left-color: var(--accent) !important;
 }

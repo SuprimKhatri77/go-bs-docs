@@ -1,0 +1,74 @@
+import { DocsHeader, Callout } from "@/components/Docs";
+
+export const metadata = { title: "Getting started" };
+
+<DocsHeader
+  title="Getting started"
+  description="Install go-bs and make your first Gregorian ↔ Bikram Sambat conversion."
+/>
+
+## Install
+
+go-bs has zero runtime dependencies and supports Go 1.22+.
+
+```sh
+go get github.com/suprimkhatri77/go-bs
+```
+
+## Convert AD → BS
+
+```go title="main.go"
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	bs "github.com/suprimkhatri77/go-bs"
+)
+
+func main() {
+	ad := time.Date(2026, time.September, 22, 0, 0, 0, 0, time.UTC)
+
+	d, err := bs.ADToBS(ad)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(d) // 2083-06-06
+}
+```
+
+## Convert BS → AD
+
+```go
+d, err := bs.NewDate(2083, 6, 6)
+if err != nil {
+	log.Fatal(err)
+}
+
+ad, err := bs.BSToAD(d)
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println(ad.Format("2006-01-02")) // 2026-09-22
+```
+
+<Callout>
+  **Note:** `bs.Date.Month` is 1-based — 1 is Baisakh, 12 is Chaitra. There's no month-0 convention
+  here, unlike Go's own `time.Month` which happens to also be 1-based, so this one actually lines up.
+</Callout>
+
+## Supported range
+
+Bikram Sambat years **1979–2100** inclusive, corresponding to the Gregorian range **1922-04-13 to
+2044-04-13**. That range comes from the verified calendar data itself, not an assumption — see
+[calendar data sources & verification](/docs/data-verification) for why, and for the one known
+limitation (BS 1979–1999 isn't checked against a live calendar source).
+
+## Where to next
+
+The [API reference](/docs/api/conversion) covers everything: conversion, date arithmetic,
+comparison, formatting, Nepali digits, and calendar-grid helpers for building calendar UIs.

@@ -1,0 +1,84 @@
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = { title: "Formatting & Nepali digits" };
+
+<DocsHeader
+  title="Formatting & Nepali digits"
+  description="Custom layout strings, month names, and converting between ASCII and Devanagari digits."
+/>
+
+<ApiEntry signature="func (d Date) Format(layout string) (string, error)">
+
+Renders d according to layout, replacing recognized tokens. Any other character (including
+punctuation and spaces) is copied through unchanged. Returns the usual validation errors if d
+itself is invalid.
+
+| Token  | Meaning                              |
+| ------ | ------------------------------------- |
+| `YYYY` | 4-digit year, e.g. "2083"              |
+| `YY`   | 2-digit year, e.g. "83"                |
+| `MMMM` | full month name, e.g. "Ashwin"         |
+| `MM`   | 2-digit month, zero-padded             |
+| `M`    | month, no leading zero                 |
+| `DD`   | 2-digit day, zero-padded               |
+| `D`    | day, no leading zero                   |
+| `dddd` | full weekday name, e.g. "Thursday"     |
+| `ddd`  | weekday abbreviation, e.g. "Thu"       |
+
+</ApiEntry>
+
+```go
+d, _ := bs.NewDate(2083, 6, 6)
+
+s1, _ := d.Format("YYYY-MM-DD")           // "2083-06-06"
+s2, _ := d.Format("dddd, MMMM D, YYYY")   // "Tuesday, Ashwin 6, 2083"
+s3, _ := d.Format("D/M/YY")               // "6/6/83"
+```
+
+<Callout tone="warn">
+  There's no `MMM` (3-letter month abbreviation) token — Nepali month names don't abbreviate
+  unambiguously (Ashadh and Ashwin both start "Ash"). An unsupported `MMM` in a layout currently
+  decomposes into `MM` + `M` rather than erroring.
+</Callout>
+
+## Month names
+
+<ApiEntry signature="func MonthName(month int) (string, error)">
+
+The English name of the given 1-based month (1 is Baisakh, 12 is Chaitra). `Date.MonthName()` is
+the equivalent method.
+
+</ApiEntry>
+
+<ApiEntry signature="func MonthNameNepali(month int) (string, error)">
+
+The Devanagari name of the given month, e.g. `असोज` for Ashwin. `Date.MonthNameNepali()` is the
+equivalent method. These were verified against Hamro Patro's own calendar page titles — see
+[calendar data sources](/docs/data-verification).
+
+</ApiEntry>
+
+```go
+bs.MonthName(6)       // "Ashwin", nil
+bs.MonthNameNepali(6) // "असोज", nil
+```
+
+## Nepali digits
+
+<ApiEntry signature="func ToNepaliDigits(s string) string">
+
+Replaces every ASCII digit (0-9) in s with its Devanagari equivalent. Other characters pass
+through unchanged.
+
+</ApiEntry>
+
+<ApiEntry signature="func FromNepaliDigits(s string) string">
+
+The inverse of ToNepaliDigits.
+
+</ApiEntry>
+
+```go
+bs.ToNepaliDigits("2083-06-06")     // "२०८३-०६-०६"
+bs.FromNepaliDigits("२०८३-०६-०६")   // "2083-06-06"
+```

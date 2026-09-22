@@ -1,0 +1,116 @@
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = { title: "Date, parsing & validation" };
+
+<DocsHeader
+  title="Date, parsing & validation"
+  description="The Date type, constructing dates, getting today's date, and validating year/month/day combinations."
+/>
+
+<ApiEntry signature="type Date struct { Year, Month, Day int }">
+
+A Bikram Sambat calendar date. `Month` is 1-based — 1 is Baisakh, 12 is Chaitra. A `Date` zero
+value or one built directly from a struct literal isn't guaranteed valid unless constructed with
+`NewDate` or returned by this package.
+
+</ApiEntry>
+
+<ApiEntry signature="func NewDate(year, month, day int) (Date, error)">
+
+Constructs and validates a `Date`. Returns an error wrapping `ErrInvalidYear`, `ErrInvalidMonth`
+or `ErrInvalidDay` if the components don't form a real Bikram Sambat calendar date in the
+supported range.
+
+</ApiEntry>
+
+<ApiEntry signature="func Parse(s string) (Date, error)">
+
+Parses a date in `"YYYY-MM-DD"` format — the same format `Date.String` produces. Returns an error
+wrapping `ErrInvalidFormat` if `s` isn't shaped like a date, or the usual validation errors if
+it's shaped correctly but not a real date.
+
+</ApiEntry>
+
+<ApiEntry signature="func MustParse(s string) Date">
+
+Like `Parse`, but panics instead of returning an error. Meant for cases like package-level
+variable initialization with a literal, known-good date string — most callers should use `Parse`.
+
+</ApiEntry>
+
+<ApiEntry signature="func TodayBS() (Date, error)">
+
+Returns the current system date converted to Bikram Sambat. Returns an error wrapping
+`ErrOutOfRange` if today's date falls outside the supported range — i.e. this code running
+before `MinBSYear` or after `MaxBSYear`'s corresponding Gregorian date.
+
+</ApiEntry>
+
+<ApiEntry signature="func (d Date) Valid() bool">
+
+Reports whether d is a real Bikram Sambat calendar date in the supported range.
+
+</ApiEntry>
+
+<ApiEntry signature='func (d Date) String() string // "YYYY-MM-DD"'>
+
+Formats d as an ISO-like string, zero-padded.
+
+</ApiEntry>
+
+## Validation
+
+<ApiEntry signature="func IsValid(year, month, day int) bool">
+
+Reports whether year, month and day form a real Bikram Sambat calendar date within the supported
+range — checked against the actual number of days in that month, not just a generic 1–31 shape
+check.
+
+</ApiEntry>
+
+<ApiEntry signature="func IsSupportedBSYear(year int) bool">
+
+Reports whether year is within `MinBSYear..MaxBSYear`.
+
+</ApiEntry>
+
+<ApiEntry signature="func DaysInMonth(year, month int) (int, error)">
+
+Returns the number of days in the given Bikram Sambat month (29, 30, 31 or 32, depending on the
+year and month). Returns an error wrapping `ErrInvalidYear` or `ErrInvalidMonth` if out of range.
+
+</ApiEntry>
+
+<ApiEntry signature="func DaysInYear(year int) (int, error)">
+
+Returns the total number of days in the given Bikram Sambat year (364–367, depending on the
+year). Returns an error wrapping `ErrInvalidYear` if out of range.
+
+</ApiEntry>
+
+## Example
+
+```go
+d, err := bs.NewDate(2083, 6, 6)
+
+d2, err := bs.Parse("2083-06-06")
+// d == d2
+
+birthday := bs.MustParse("2060-06-15") // panics if malformed — use a literal only
+
+today, err := bs.TodayBS()
+
+fmt.Println(d.String()) // "2083-06-06"
+fmt.Println(d.Valid())  // true
+
+bs.IsValid(2083, 9, 32)      // false — Poush 2083 only has 30 days
+bs.IsSupportedBSYear(2101)   // false — outside MinBSYear..MaxBSYear
+
+days, _ := bs.DaysInMonth(2083, 6) // 31
+total, _ := bs.DaysInYear(2083)    // 365
+```
+
+<Callout tone="warn">
+  `MustParse` panics on invalid input — only use it with a compile-time-known literal string,
+  never with user input or anything from an external source. Use `Parse` for that.
+</Callout>

@@ -44,9 +44,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             rel="noreferrer"
             className="underline decoration-border underline-offset-4 hover:text-foreground"
           >
-            View source on GitHub
+            Source
+          </a>{" "}
+          ·{" "}
+          <a
+            href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-border underline-offset-4 hover:text-foreground"
+          >
+            pkg.go.dev
           </a>
-          .
         </footer>
       </body>
     </html>

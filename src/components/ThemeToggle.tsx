@@ -1,10 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-// A tiny event bus so useSyncExternalStore knows to re-check the DOM class
-// after toggle() mutates it directly (outside React's render).
-const THEME_CHANGE_EVENT = "go-bs-theme-change";
+import { THEME_CHANGE_EVENT, toggleTheme } from "@/lib/theme";
 
 function subscribe(callback: () => void) {
   window.addEventListener(THEME_CHANGE_EVENT, callback);
@@ -27,18 +24,12 @@ export function ThemeToggle() {
   // inline ThemeScript already set on <html> before paint).
   const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  function toggle() {
-    const next = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
-  }
-
   return (
     <button
       type="button"
-      onClick={toggle}
-      aria-label="Toggle color theme"
+      onClick={toggleTheme}
+      aria-label="Toggle color theme (D)"
+      title="Toggle theme (D)"
       className="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground hover:border-foreground/30"
     >
       {isDark ? (

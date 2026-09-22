@@ -1,0 +1,49 @@
+import { DocsHeader, ApiEntry } from "@/components/Docs";
+
+export const metadata = { title: "Comparison" };
+
+<DocsHeader title="Comparison" description="Ordering and equality for Date values." />
+
+<ApiEntry signature="func (d Date) Before(other Date) bool">
+
+Reports whether d is chronologically before other. Compares fields directly and does not require
+either date to be valid.
+
+</ApiEntry>
+
+<ApiEntry signature="func (d Date) After(other Date) bool">
+
+Reports whether d is chronologically after other. Same validity note as Before.
+
+</ApiEntry>
+
+<ApiEntry signature="func (d Date) Equal(other Date) bool">
+
+Reports whether d and other represent the same calendar date.
+
+</ApiEntry>
+
+<ApiEntry signature="func Compare(a, b Date) int">
+
+Compares two dates: `-1` if a is before b, `0` if they're equal, `1` if a is after b. Same
+field-only comparison as `Before`/`After`.
+
+</ApiEntry>
+
+## Example
+
+```go
+a, _ := bs.NewDate(2083, 6, 6)
+b, _ := bs.NewDate(2083, 6, 7)
+
+a.Before(b) // true
+b.After(a)  // true
+a.Equal(a)  // true
+
+bs.Compare(a, b) // -1
+bs.Compare(a, a) // 0
+```
+
+Since `Date` is a plain comparable struct, `a == b` also works directly (that's exactly what
+`Equal` does) — the named methods exist for readability and so a `Date` slice can be sorted with
+`slices.SortFunc` using `Compare`.

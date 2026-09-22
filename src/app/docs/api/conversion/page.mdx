@@ -1,0 +1,59 @@
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = { title: "Conversion" };
+
+<DocsHeader
+  title="Conversion"
+  description="The two functions this library exists for: converting between Gregorian (AD) and Bikram Sambat (BS)."
+/>
+
+<ApiEntry signature="func ADToBS(t time.Time) (Date, error)">
+
+Converts a Gregorian calendar date to Bikram Sambat. Only the `Year`, `Month` and `Day` components
+of `t` are used — time-of-day and location are ignored. Returns an error wrapping `ErrOutOfRange`
+if `t` falls outside the Gregorian range corresponding to `MinBSYear..MaxBSYear`.
+
+</ApiEntry>
+
+<ApiEntry signature="func BSToAD(d Date) (time.Time, error)">
+
+Converts a Bikram Sambat date to the corresponding Gregorian calendar date, returned as a
+`time.Time` at UTC midnight. Returns an error wrapping `ErrInvalidYear`, `ErrInvalidMonth` or
+`ErrInvalidDay` if `d` is not a real, supported Bikram Sambat date.
+
+</ApiEntry>
+
+## Example
+
+```go
+ad := time.Date(2026, time.September, 22, 0, 0, 0, 0, time.UTC)
+
+d, err := bs.ADToBS(ad)
+// d == bs.Date{Year: 2083, Month: 6, Day: 6}, err == nil
+
+back, err := bs.BSToAD(d)
+// back == time.Date(2026, 9, 22, 0, 0, 0, 0, time.UTC), err == nil
+```
+
+## Timezone behavior
+
+`ADToBS` normalizes its input to a UTC-midnight calendar date before converting, so the same
+Gregorian calendar date always converts to the same BS date regardless of which timezone the
+`time.Time` is expressed in.
+
+```go
+kathmandu, _ := time.LoadLocation("Asia/Kathmandu")
+newYork, _ := time.LoadLocation("America/New_York")
+
+t1 := time.Date(2026, 9, 22, 0, 0, 0, 0, kathmandu)
+t2 := time.Date(2026, 9, 22, 23, 59, 59, 0, newYork)
+
+d1, _ := bs.ADToBS(t1)
+d2, _ := bs.ADToBS(t2)
+// d1 == d2 == bs.Date{2083, 6, 6}
+```
+
+<Callout>
+  Every one of the 44,562 supported days round-trips exactly in both directions (`BS → AD → BS` and
+  `AD → BS → AD`) — this is checked exhaustively in the library's test suite, not sampled.
+</Callout>
