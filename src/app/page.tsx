@@ -36,36 +36,19 @@ export default function Home() {
         className="mx-auto grid max-w-[1140px] items-center gap-9 px-5 pt-12 pb-10 sm:px-8 sm:pt-[92px] sm:pb-16 lg:grid-cols-2 lg:gap-16"
       >
         <div className="min-w-0">
-          <div className="mb-5 flex gap-2 font-mono text-[11px] tracking-wider text-faint uppercase">
-            <span>Go</span>
-            <span>·</span>
-            <span>Zero dependencies</span>
-            <span>·</span>
-            <span>MIT</span>
-          </div>
           <h1 className="text-[clamp(34px,4.4vw,52px)] leading-[1.04] font-semibold tracking-tight text-balance">
-            Bikram Sambat dates, done properly in Go.
+            Bikram Sambat, done right in Go.
           </h1>
-          <p className="mt-5 max-w-[38ch] text-[17px] leading-relaxed text-muted text-pretty">
-            Gregorian ↔ Bikram Sambat conversion for Go, on verified calendar data.
+          <p className="mt-5 max-w-[36ch] text-[17px] leading-relaxed text-muted text-pretty">
+            Convert Gregorian ↔ Bikram Sambat dates on calendar data verified against Nepal&apos;s official calendar.
           </p>
           <InstallCopy />
-          <div className="mt-[22px] flex flex-wrap gap-2.5">
-            <Link
-              href="/docs/getting-started"
-              className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Get started
-            </Link>
-            <a
-              href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
-            >
-              pkg.go.dev reference →
-            </a>
-          </div>
+          <Link
+            href="/docs/getting-started"
+            className="mt-[22px] inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Get started
+          </Link>
         </div>
 
         <LandingDemo />
