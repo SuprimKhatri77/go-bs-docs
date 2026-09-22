@@ -18,7 +18,7 @@ export function InstallCopy() {
   }
 
   return (
-    <div className="mt-[30px] flex max-w-[460px] items-stretch overflow-hidden rounded-[10px] border border-border bg-[var(--code-bg)]">
+    <div className="flex w-full max-w-[460px] items-stretch overflow-hidden rounded-[10px] border border-border bg-[var(--code-bg)]">
       <code className="min-w-0 flex-1 overflow-x-auto px-3.5 py-3 font-mono text-[13.5px] whitespace-nowrap">
         {INSTALL}
       </code>

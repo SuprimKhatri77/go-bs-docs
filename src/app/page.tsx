@@ -31,37 +31,36 @@ const FEATURES = [
 export default function Home() {
   return (
     <main>
-      <section
-        id="top"
-        className="mx-auto grid max-w-[1140px] items-center gap-9 px-5 pt-12 pb-10 sm:px-8 sm:pt-[92px] sm:pb-16 lg:grid-cols-2 lg:gap-16"
-      >
-        <div className="min-w-0">
-          <h1 className="text-[clamp(34px,4.4vw,52px)] leading-[1.04] font-semibold tracking-tight text-balance">
-            Bikram Sambat, computed correctly.
-          </h1>
-          <p className="mt-5 max-w-[38ch] text-[17px] leading-relaxed text-muted text-pretty">
-            A Go library for Gregorian ↔ Bikram Sambat conversion, verified against Nepal&apos;s official calendar —
-            not derived from a formula.
-          </p>
-          <InstallCopy />
-          <div className="mt-[22px] flex flex-wrap gap-2.5">
-            <Link
-              href="/docs/getting-started"
-              className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Get started
-            </Link>
-            <a
-              href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
-            >
-              pkg.go.dev reference →
-            </a>
-          </div>
+      <section id="top" className="mx-auto max-w-[1140px] px-5 pt-16 pb-12 text-center sm:px-8 sm:pt-24 sm:pb-16">
+        <h1 className="mx-auto max-w-[18ch] text-[clamp(34px,5vw,58px)] leading-[1.05] font-semibold tracking-tight text-balance">
+          Bikram Sambat, computed correctly.
+        </h1>
+        <p className="mx-auto mt-5 max-w-[46ch] text-[17px] leading-relaxed text-muted text-pretty">
+          A Go library for Gregorian ↔ Bikram Sambat conversion, verified against Nepal&apos;s official calendar —
+          not derived from a formula.
+        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+          <Link
+            href="/docs/getting-started"
+            className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Get started
+          </Link>
+          <a
+            href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
+          >
+            pkg.go.dev reference →
+          </a>
         </div>
+        <div className="mt-6 flex justify-center">
+          <InstallCopy />
+        </div>
+      </section>
 
+      <section className="mx-auto max-w-[680px] px-5 pb-12 sm:px-8 sm:pb-20">
         <LandingDemo />
       </section>
 
