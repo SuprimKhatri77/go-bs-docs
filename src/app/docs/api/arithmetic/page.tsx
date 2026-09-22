@@ -1,0 +1,148 @@
+import { DocsHeader, H2, P, ApiEntry, Callout, InlineCode } from "@/components/Docs";
+import { CodeBlock } from "@/components/CodeBlock";
+
+export const metadata = { title: "Arithmetic & ranges" };
+
+export default function Page() {
+  return (
+    <>
+      <DocsHeader
+        title="Arithmetic & ranges"
+        description="Adding/subtracting days and months, comparing spans, and finding month/year boundaries."
+      />
+
+      <H2>Days</H2>
+
+      <ApiEntry signature="func (d Date) AddDays(n int) (Date, error)">
+        <P>
+          Returns the date n calendar days after d (or before, if n is negative). Returns an error wrapping{" "}
+          <InlineCode>ErrInvalidYear</InlineCode>/<InlineCode>ErrInvalidMonth</InlineCode>/
+          <InlineCode>ErrInvalidDay</InlineCode> if d itself is invalid, or <InlineCode>ErrOutOfRange</InlineCode> if
+          the result falls outside the supported range.
+        </P>
+      </ApiEntry>
+
+      <ApiEntry signature="func (d Date) SubDays(n int) (Date, error)">
+        <P>Returns the date n calendar days before d. Same errors as AddDays.</P>
+      </ApiEntry>
+
+      <ApiEntry signature="func (d Date) NextDay() (Date, error)">
+        <P>The day after d — a thin wrapper over AddDays(1).</P>
+      </ApiEntry>
+
+      <ApiEntry signature="func (d Date) PreviousDay() (Date, error)">
+        <P>The day before d — a thin wrapper over SubDays(1).</P>
+      </ApiEntry>
+
+      <ApiEntry signature="func (d Date) DayOfWeek() (time.Weekday, error)">
+        <P>The day of the week d falls on, derived through its equivalent Gregorian date.</P>
+      </ApiEntry>
+
+      <ApiEntry signature="func DaysBetween(a, b Date) (int, error)">
+        <P>
+          The number of calendar days from a to b: positive if b is after a, negative if b is before a, zero if
+          equal.
+        </P>
+      </ApiEntry>
+
+      <CodeBlock
+        lang="go"
+        code={`d, _ := bs.NewDate(2083, 6, 6)
+
+next, _ := d.AddDays(10)  // 2083-06-16
+prev, _ := d.SubDays(10)  // 2083-05-27
+
+nd, _ := d.NextDay()      // 2083-06-07
+pd, _ := d.PreviousDay()  // 2083-06-05
+
+weekday, _ := d.DayOfWeek() // Tuesday
+
+other, _ := bs.NewDate(2083, 6, 16)
+diff, _ := bs.DaysBetween(d, other) // 10`}
+      />
+
+      <H2>Months</H2>
+
+      <ApiEntry signature="func (d Date) NextMonth() (Date, error)">
+        <P>
+          The date one Bikram Sambat month after d, in the same day-of-month — <strong>clamped</strong> to the
+          target month&apos;s last day if it&apos;s shorter, rather than rolling over into the month after. Returns
+          the usual validation errors for an invalid receiver.
+        </P>
+      </ApiEntry>
+
+      <ApiEntry signature="func (d Date) PreviousMonth() (Date, error)">
+        <P>The date one Bikram Sambat month before d, with the same clamping behavior as NextMonth.</P>
+      </ApiEntry>
+
+      <Callout tone="warn">
+        This clamping is deliberate. Go&apos;s own <InlineCode>time.Time.AddDate(0, 1, 0)</InlineCode> has a
+        well-known gotcha where Jan 31 + one month rolls into March, since February doesn&apos;t have 31 days.{" "}
+        <InlineCode>NextMonth</InlineCode>/<InlineCode>PreviousMonth</InlineCode> avoid that: day 32 in a 32-day
+        month becomes day 31 in a 31-day target month, not day 1 of the month after.
+      </Callout>
+
+      <CodeBlock
+        lang="go"
+        code={`d, _ := bs.NewDate(2083, 6, 6)
+
+next, _ := d.NextMonth()     // 2083-07-06
+prev, _ := d.PreviousMonth() // 2083-05-06
+
+// Ashadh (month 3) 2083 has 32 days; Shrawan (month 4) has only 31.
+last, _ := bs.NewDate(2083, 3, 32)
+clamped, _ := last.NextMonth() // 2083-04-31, not 2083-05-01`}
+      />
+
+      <H2>Month and year boundaries</H2>
+
+      <ApiEntry signature="func (d Date) StartOfMonth() (Date, error)">
+        <P>Day 1 of d&apos;s month.</P>
+      </ApiEntry>
+      <ApiEntry signature="func (d Date) EndOfMonth() (Date, error)">
+        <P>The last day of d&apos;s month.</P>
+      </ApiEntry>
+      <ApiEntry signature="func (d Date) StartOfYear() (Date, error)">
+        <P>Baisakh 1 of d&apos;s year.</P>
+      </ApiEntry>
+      <ApiEntry signature="func (d Date) EndOfYear() (Date, error)">
+        <P>The last day of Chaitra of d&apos;s year.</P>
+      </ApiEntry>
+      <ApiEntry signature="func (d Date) DayOfYear() (int, error)">
+        <P>d&apos;s 1-based ordinal day within its year (1 for Baisakh 1, up to 365 or 366 for the last day of Chaitra).</P>
+      </ApiEntry>
+
+      <CodeBlock
+        lang="go"
+        code={`d, _ := bs.NewDate(2083, 6, 6)
+
+som, _ := d.StartOfMonth() // 2083-06-01
+eom, _ := d.EndOfMonth()   // 2083-06-31
+
+soy, _ := d.StartOfYear()  // 2083-01-01
+eoy, _ := d.EndOfYear()    // 2083-12-30 (Chaitra 2083 has 30 days)
+
+day, _ := d.DayOfYear()    // 162`}
+      />
+
+      <H2>Age</H2>
+
+      <ApiEntry signature="func Age(birthBS, todayBS Date) (years, months, days int, err error)">
+        <P>
+          Computes calendar age from birthBS to todayBS (see <InlineCode>TodayBS</InlineCode>) — real Y/M/D
+          calendar math with month/day borrowing, not just a raw day count divided by 365. Returns an error wrapping{" "}
+          <InlineCode>ErrInvalidDateOrder</InlineCode> if birthBS is after todayBS.
+        </P>
+      </ApiEntry>
+
+      <CodeBlock
+        lang="go"
+        code={`birth := bs.MustParse("2060-06-15")
+today := bs.MustParse("2083-06-06") // 9 days before the 23rd birthday
+
+years, months, days, err := bs.Age(birth, today)
+// years == 22, months == 11, days == 22`}
+      />
+    </>
+  );
+}

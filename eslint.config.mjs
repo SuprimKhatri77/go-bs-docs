@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored, unmodified glue script from the Go toolchain
+    // (scripts/build-wasm.sh copies it verbatim) — not ours to lint.
+    "public/wasm_exec.js",
   ]),
 ]);
 

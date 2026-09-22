@@ -1,0 +1,5 @@
+module github.com/suprimkhatri77/go-bs-docs/wasm
+
+go 1.22
+
+require github.com/suprimkhatri77/go-bs v0.5.0

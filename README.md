@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# go-bs-docs
 
-## Getting Started
+Documentation site for [go-bs](https://github.com/suprimkhatri77/go-bs), a
+dependency-free Go library for converting between Gregorian (AD) and Bikram
+Sambat (BS) dates.
 
-First, run the development server:
+Next.js (App Router, TypeScript, Tailwind v4). Every page is statically
+generated — there's no backend.
 
-```bash
+## What's interactive
+
+The homepage's AD↔BS converter and the calendar-grid page's live month view
+both run the **real go-bs library**, compiled to WebAssembly — not a
+JavaScript reimplementation. See [`wasm/`](./wasm) and
+[`src/lib/wasm.ts`](./src/lib/wasm.ts).
+
+## Development
+
+```sh
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## The WASM build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`wasm/main.go` is a small Go program that imports the published
+`github.com/suprimkhatri77/go-bs` module and exposes a JS-friendly API
+(`window.goBS`) via `syscall/js`. It's presentation-layer glue, not part of
+go-bs itself.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The compiled output (`public/converter.wasm`, `public/wasm_exec.js`) is
+**committed to this repo**, so Vercel's build never needs Go installed.
+Regenerate it after a go-bs update:
 
-## Learn More
+```sh
+cd wasm && go get github.com/suprimkhatri77/go-bs@latest && cd ..
+./scripts/build-wasm.sh
+```
 
-To learn more about Next.js, take a look at the following resources:
+Requires a Go toolchain with the js/wasm port (any modern Go). The compiled
+`.wasm` is ~3.1MB uncompressed, ~880KB gzipped (which Vercel/most hosts
+serve automatically).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Checks
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sh
+npm run lint
+npm run build   # also runs the TypeScript check
+```
 
-## Deploy on Vercel
+## Deploying
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Zero-config on Vercel — it's a standard Next.js app with no server-side
+dependencies (the WASM file is a static asset).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT — see [LICENSE](LICENSE). Matches go-bs's license; this is documentation
+for that project, not a separate product.
