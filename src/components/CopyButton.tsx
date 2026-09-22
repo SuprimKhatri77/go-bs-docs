@@ -20,7 +20,7 @@ export function CopyButton({ getText }: { getText: () => string }) {
       type="button"
       onClick={copy}
       aria-label={copied ? "Copied" : "Copy code"}
-      className="absolute top-2 right-2 inline-flex size-7 items-center justify-center rounded-md border border-border bg-background/90 text-muted opacity-0 backdrop-blur transition-opacity hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
+      className="absolute top-2 right-2 inline-flex size-7 items-center justify-center rounded-md border border-border bg-background text-muted opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
     >
       {copied ? (
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
