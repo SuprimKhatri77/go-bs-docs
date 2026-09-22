@@ -1,67 +1,59 @@
 import Link from "next/link";
-import { Converter } from "@/components/Converter";
-import { CodeBlock } from "@/components/CodeBlock";
-
-const INSTALL_SNIPPET = `go get github.com/suprimkhatri77/go-bs`;
-
-const USAGE_SNIPPET = `ad := time.Date(2026, time.September, 22, 0, 0, 0, 0, time.UTC)
-
-d, _ := bs.ADToBS(ad)
-fmt.Println(d) // 2083-06-06
-
-next, _ := d.AddDays(10)
-name, _ := d.MonthNameNepali()
-fmt.Println(next, name) // 2083-06-16 असोज`;
-
-const CHECKLIST = [
-  "122 BS years covered (1979–2100)",
-  "1,464 BS months represented",
-  "Every supported BS date exhaustively tested",
-  "AD → BS → AD and BS → AD → BS round-trip tested",
-  "Zero runtime dependencies",
-  "Zero network requests",
-];
+import { LandingDemo } from "@/components/LandingDemo";
+import { InstallCopy } from "@/components/InstallCopy";
+import { CodeExamples } from "@/components/CodeExamples";
 
 const FEATURES = [
   {
-    title: "Verified calendar data",
-    body: "BS month lengths follow Nepal's officially published calendar, not a formula. The dataset was cross-checked against multiple existing implementations and a live calendar source — see how.",
-    href: "/docs/data-verification",
-  },
-  {
     title: "A real date type",
-    body: "Arithmetic, comparison, formatting, Nepali digits, and calendar-grid helpers — not just two converter functions.",
-    href: "/docs/api/arithmetic",
+    body: (
+      <>
+        Not two converter functions. <code className="font-mono text-[13px]">bs.Date</code> does arithmetic,
+        comparison, formatting and month boundaries.
+      </>
+    ),
   },
   {
     title: "Strict validation",
-    body: "Every date is checked against its month's real length, not just shape. Errors, not panics, throughout.",
-    href: "/docs/api/errors",
+    body: (
+      <>
+        Every date is checked against its month&apos;s real length, not just its shape. Errors that work with{" "}
+        <code className="font-mono text-[13px]">errors.Is</code>, never panics.
+      </>
+    ),
   },
   {
     title: "Timezone-safe",
-    body: "Conversion is based on calendar date only — time-of-day and location never change the result.",
-    href: "/docs/api/conversion",
+    body: "Conversion reads only year, month and day. The same Gregorian date always yields the same BS date, in any location.",
   },
 ];
 
 export default function Home() {
   return (
     <main>
-      <section className="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6 sm:pt-16">
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+      <section
+        id="top"
+        className="mx-auto grid max-w-[1140px] items-center gap-9 px-5 pt-12 pb-10 sm:px-8 sm:pt-[92px] sm:pb-16 lg:grid-cols-2 lg:gap-16"
+      >
+        <div className="min-w-0">
+          <div className="mb-5 flex gap-2 font-mono text-[11px] tracking-wider text-faint uppercase">
+            <span>Go</span>
+            <span>·</span>
+            <span>Zero dependencies</span>
+            <span>·</span>
+            <span>MIT</span>
+          </div>
+          <h1 className="text-[clamp(34px,4.4vw,52px)] leading-[1.04] font-semibold tracking-tight text-balance">
             Bikram Sambat dates, done properly in Go.
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-muted">
-            A dependency-free Go library for converting between Gregorian (AD) and
-            Bikram Sambat (BS), Nepal&apos;s calendar — with verified calendar data
-            and a complete, well-tested date API.
+          <p className="mt-5 max-w-[38ch] text-[17px] leading-relaxed text-muted text-pretty">
+            Gregorian ↔ Bikram Sambat conversion for Go, on verified calendar data.
           </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <InstallCopy />
+          <div className="mt-[22px] flex flex-wrap gap-2.5">
             <Link
               href="/docs/getting-started"
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               Get started
             </Link>
@@ -69,53 +61,64 @@ export default function Home() {
               href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:border-foreground/30"
+              className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
             >
-              pkg.go.dev reference
+              pkg.go.dev reference →
             </a>
           </div>
         </div>
+
+        <LandingDemo />
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
-        <Converter />
+      <div className="border-t border-b border-border-soft">
+        <div className="mx-auto flex max-w-[1140px] flex-wrap gap-x-8 gap-y-2 px-5 py-4 font-mono text-xs text-muted sm:px-8">
+          <span>BS 1979–2100</span>
+          <span>44,562 days round-trip tested</span>
+          <span>Zero dependencies, zero network calls</span>
+        </div>
+      </div>
+
+      <section id="docs" className="mx-auto max-w-[1140px] px-5 py-[clamp(72px,10vw,132px)] sm:px-8">
+        <div className="flex flex-wrap items-baseline gap-x-[18px] gap-y-2">
+          <h2 className="text-[clamp(24px,2.6vw,30px)] font-semibold tracking-tight">Three snippets, the whole idea.</h2>
+          <a
+            href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-muted transition-colors hover:text-accent"
+          >
+            Full API reference →
+          </a>
+        </div>
+        <CodeExamples />
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <CodeBlock lang="sh" title="Install" code={INSTALL_SNIPPET} />
-          <CodeBlock lang="go" title="Usage" code={USAGE_SNIPPET} />
+      <section className="border-t border-border-soft">
+        <div className="mx-auto grid max-w-[1140px] gap-8 px-5 py-[clamp(72px,10vw,132px)] sm:grid-cols-3 sm:px-8 sm:gap-10">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="min-w-0">
+              <h3 className="text-[16.5px] font-semibold tracking-tight">{f.title}</h3>
+              <p className="mt-2.5 text-[14.5px] leading-relaxed text-muted text-pretty">{f.body}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="border-t border-border bg-surface py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map((f) => (
-              <Link key={f.title} href={f.href} className="group block">
-                <h3 className="font-medium group-hover:text-accent">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-muted">{f.body}</p>
-              </Link>
-            ))}
+      <section id="data" className="border-t border-border-soft">
+        <div className="mx-auto max-w-[1140px] px-5 py-[clamp(72px,10vw,132px)] sm:px-8">
+          <div className="max-w-[56ch]">
+            <h2 className="text-[clamp(24px,2.6vw,30px)] font-semibold tracking-tight">Where the data comes from</h2>
+            <p className="mt-[18px] text-base leading-relaxed text-muted text-pretty">
+              BS month lengths are stored as a static, table-driven dataset rather than computed from a formula. The
+              table was cross-checked against multiple open-source implementations and, where possible, against a
+              live calendar source. Known limitations are documented.
+            </p>
+            <Link href="/docs/data-verification" className="mt-5 inline-block text-[14.5px] text-accent hover:underline">
+              Sources and verification method →
+            </Link>
           </div>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <ul className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-          {CHECKLIST.map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <svg viewBox="0 0 20 20" width="16" height="16" className="shrink-0 text-accent" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0l-3.5-3.5a1 1 0 111.4-1.4L8.5 12l6.8-6.8a1 1 0 011.4 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {item}
-            </li>
-          ))}
-        </ul>
       </section>
     </main>
   );
