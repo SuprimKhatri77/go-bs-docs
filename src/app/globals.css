@@ -186,10 +186,12 @@ a.anchor-heading {
    declaration, so it can be theme-switched — this is what actually reads
    them. Every highlighted span carries both variables; only the active
    theme's is used. */
-.prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"] {
+.prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"],
+.shiki-html [style*="--shiki-light"] {
   color: var(--shiki-light);
 }
-.dark .prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"] {
+.dark .prose figure[data-rehype-pretty-code-figure] [style*="--shiki-light"],
+.dark .shiki-html [style*="--shiki-light"] {
   color: var(--shiki-dark);
 }
 .prose [data-highlighted-line] {

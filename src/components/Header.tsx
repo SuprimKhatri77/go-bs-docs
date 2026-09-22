@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { MobileNav } from "./MobileNav";
 import { CommandPalette } from "./CommandPalette";
+import { Logo } from "./Logo";
 
 const GITHUB_URL = "https://github.com/suprimkhatri77/go-bs";
 
@@ -11,12 +12,7 @@ export function Header() {
       <div className="relative mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 text-[15px] font-semibold">
-            <span
-              aria-hidden
-              className="inline-flex size-5 items-center justify-center rounded bg-foreground text-[10px] font-bold text-background"
-            >
-              बै
-            </span>
+            <Logo className="size-5 text-foreground" />
             go-bs
           </Link>
           <nav className="hidden items-center gap-5 text-sm text-muted sm:flex">

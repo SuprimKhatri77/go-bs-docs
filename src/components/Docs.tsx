@@ -1,3 +1,5 @@
+import { codeToHtml } from "shiki";
+
 export function DocsHeader({ title, description }: { title: string; description: string }) {
   return (
     <div className="mb-8">
@@ -22,12 +24,19 @@ export function Callout({ children, tone = "note" }: { children: React.ReactNode
 }
 
 /** A function/method/type signature, styled as a small mono heading — not a bordered card. */
-export function ApiEntry({ signature, children }: { signature: string; children: React.ReactNode }) {
+export async function ApiEntry({ signature, children }: { signature: string; children: React.ReactNode }) {
+  const html = await codeToHtml(signature.trim(), {
+    lang: "go",
+    themes: { light: "github-light", dark: "github-dark" },
+    defaultColor: false,
+  });
+
   return (
     <div className="mb-8 border-t border-border pt-5 first:mt-0 first:border-0 first:pt-0">
-      <div className="mb-2 overflow-x-auto whitespace-pre rounded-md bg-surface px-3 py-2 font-mono text-[13px] text-foreground/90">
-        {signature}
-      </div>
+      <div
+        className="shiki-html mb-2 overflow-x-auto rounded-md bg-surface px-3 py-2 text-[13px] [&_pre]:!bg-transparent [&_pre]:whitespace-pre [&_pre]:font-mono"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
       <div className="text-sm leading-relaxed text-foreground/80 [&>p]:mb-3 [&>p:last-child]:mb-0">{children}</div>
     </div>
   );
