@@ -15,6 +15,14 @@ value or one built directly from a struct literal isn't guaranteed valid unless 
 
 </ApiEntry>
 
+<ApiEntry signature="const MinBSYear = 1979
+const MaxBSYear = 2100">
+
+The inclusive bounds of the BS years this package supports, corresponding to the Gregorian range
+1922-04-13 to 2044-04-13. Referenced throughout this reference as `MinBSYear..MaxBSYear`.
+
+</ApiEntry>
+
 <ApiEntry signature="func NewDate(year, month, day int) (Date, error)">
 
 Constructs and validates a `Date`. Returns an error wrapping `ErrInvalidYear`, `ErrInvalidMonth`
