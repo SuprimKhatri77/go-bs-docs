@@ -37,18 +37,29 @@ export default function Home() {
       >
         <div className="min-w-0">
           <h1 className="text-[clamp(34px,4.4vw,52px)] leading-[1.04] font-semibold tracking-tight text-balance">
-            Bikram Sambat, done right in Go.
+            Bikram Sambat, computed correctly.
           </h1>
-          <p className="mt-5 max-w-[36ch] text-[17px] leading-relaxed text-muted text-pretty">
-            Convert Gregorian ↔ Bikram Sambat dates on calendar data verified against Nepal&apos;s official calendar.
+          <p className="mt-5 max-w-[38ch] text-[17px] leading-relaxed text-muted text-pretty">
+            A Go library for Gregorian ↔ Bikram Sambat conversion, verified against Nepal&apos;s official calendar —
+            not derived from a formula.
           </p>
           <InstallCopy />
-          <Link
-            href="/docs/getting-started"
-            className="mt-[22px] inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Get started
-          </Link>
+          <div className="mt-[22px] flex flex-wrap gap-2.5">
+            <Link
+              href="/docs/getting-started"
+              className="inline-flex h-10 items-center rounded-[9px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Get started
+            </Link>
+            <a
+              href="https://pkg.go.dev/github.com/suprimkhatri77/go-bs"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-10 items-center rounded-[9px] border border-border px-[18px] text-sm text-muted transition-colors hover:border-muted hover:text-foreground"
+            >
+              pkg.go.dev reference →
+            </a>
+          </div>
         </div>
 
         <LandingDemo />
