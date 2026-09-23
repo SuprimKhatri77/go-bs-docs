@@ -2,15 +2,15 @@ import { docsMetadata } from "@/lib/site";
 import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
 
 export const metadata = docsMetadata({
-  title: "Formatting & Nepali digits",
+  title: "Formatting & Nepali",
   description:
-    "Format Bikram Sambat dates in Go with custom layouts, English and Nepali month names, and conversion between ASCII and Devanagari (Nepali) digits.",
+    "Format Bikram Sambat dates in Go with custom layouts, in English or in Nepali (Devanagari digits, Nepali month and weekday names), and convert between ASCII and Nepali digits.",
   path: "/docs/api/formatting",
 });
 
 <DocsHeader
-  title="Formatting & Nepali digits"
-  description="Custom layout strings, month names, and converting between ASCII and Devanagari digits."
+  title="Formatting & Nepali"
+  description="Custom layout strings in English or Nepali, month and weekday names, and converting between ASCII and Devanagari digits."
 />
 
 <ApiEntry signature="func (d Date) Format(layout string) (string, error)">
@@ -41,6 +41,24 @@ s2, _ := d.Format("dddd, MMMM D, YYYY")   // "Tuesday, Ashwin 6, 2083"
 s3, _ := d.Format("D/M/YY")               // "6/6/83"
 ```
 
+<ApiEntry signature="func (d Date) FormatNepali(layout string) (string, error)">
+
+Like `Format`, with the same tokens, but rendered in Nepali: numbers in Devanagari digits, `MMMM`
+as the Nepali month name, `dddd` as the Nepali weekday name and `ddd` as its short form (the name
+without "वार"). Characters that aren't part of a token, including any ASCII digits in the layout,
+are copied through unchanged. Added in v0.7.0.
+
+</ApiEntry>
+
+```go
+d, _ := bs.NewDate(2083, 6, 6)
+
+n1, _ := d.FormatNepali("YYYY-MM-DD")         // "२०८३-०६-०६"
+n2, _ := d.FormatNepali("dddd, MMMM D, YYYY") // "मंगलवार, असोज ६, २०८३"
+n3, _ := d.FormatNepali("ddd D/M/YY")         // "मंगल ६/६/८३"
+n4, _ := d.FormatNepali("मिति: YYYY-MM-DD")   // "मिति: २०८३-०६-०६"
+```
+
 <Callout tone="warn">
   There's no `MMM` (3-letter month abbreviation) token — Nepali month names don't abbreviate
   unambiguously (Ashadh and Ashwin both start "Ash"). An unsupported `MMM` in a layout currently
@@ -68,6 +86,28 @@ equivalent method. These were verified against Hamro Patro's own calendar page t
 bs.MonthName(6)       // "Ashwin", nil
 bs.MonthNameNepali(6) // "असोज", nil
 ```
+
+## Weekday names
+
+<ApiEntry signature="func WeekdayNameNepali(weekday time.Weekday) (string, error)">
+
+The Devanagari name of the given weekday, e.g. `आइतवार` for `time.Sunday`.
+`Date.WeekdayNameNepali()` is the equivalent method for the weekday a date falls on. Returns an
+error wrapping `ErrInvalidWeekday` for a weekday outside `time.Sunday..time.Saturday`. For the
+English name, use `time.Weekday`'s own `String` method. Added in v0.7.0.
+
+</ApiEntry>
+
+```go
+bs.WeekdayNameNepali(time.Sunday) // "आइतवार", nil
+
+d, _ := bs.NewDate(2083, 6, 6)
+d.WeekdayNameNepali()             // "मंगलवार", nil
+```
+
+The names follow Hamro Patro's calendar spelling, the same source as the Nepali month names:
+आइतवार, सोमवार, मंगलवार, बुधवार, बिहिवार, शुक्रवार, शनिवार. The Nepal Academy standard spelling uses
+-बार instead (आइतबार, …); both are in common use.
 
 ## Nepali digits
 

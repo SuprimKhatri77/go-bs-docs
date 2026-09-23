@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { docsNav } from "@/lib/nav";
+import { languageFromPath } from "@/lib/languages";
+import { docsNavFor } from "@/lib/nav";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function DocsSidebar() {
   const pathname = usePathname();
+  const nav = docsNavFor(languageFromPath(pathname));
 
   return (
     <nav className="space-y-5 text-sm">
-      {docsNav.map((section) => (
+      <LanguageSwitcher />
+      {nav.map((section) => (
         <div key={section.title}>
           <div className="mb-1.5 px-2 text-xs font-semibold uppercase tracking-wide text-muted">
             {section.title}

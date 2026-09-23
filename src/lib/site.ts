@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { languageFromPath } from "@/lib/languages";
 
 export const SITE_URL = "https://go-bs.suprimkhatri.com.np";
 export const SITE_NAME = "go-bs";
-export const SITE_TITLE = "go-bs — Bikram Sambat date conversion for Go";
+export const SITE_TITLE = "go-bs — Bikram Sambat date conversion for Go and TypeScript";
 export const SITE_DESCRIPTION =
-  "A dependency-free Go library for converting dates between Gregorian (AD) and Bikram Sambat (BS), Nepal's calendar. Supports BS 1979–2100 with verified calendar data.";
+  "Dependency-free Go and TypeScript libraries for converting dates between Gregorian (AD) and Bikram Sambat (BS), Nepal's calendar. Supports BS 1979–2100 with verified calendar data, identical in both languages.";
 export const GITHUB_URL = "https://github.com/suprimkhatri77/go-bs";
 export const PKG_GO_DEV_URL = "https://pkg.go.dev/github.com/suprimkhatri77/go-bs";
 export const AUTHOR = { name: "Suprim Khatri", url: "https://github.com/suprimkhatri77" };
@@ -18,7 +19,7 @@ export const FEED_ALTERNATES = {
  * than merging with them, so the shared fields are repeated here.
  */
 export function docsMetadata({
-  title,
+  title: pageTitle,
   description,
   path,
 }: {
@@ -26,6 +27,10 @@ export function docsMetadata({
   description: string;
   path: string;
 }): Metadata {
+  // Pages for a non-default language say which one in their title, e.g.
+  // "Conversion (TypeScript) — go-bs", so search results can tell them apart.
+  const language = languageFromPath(path);
+  const title = language.prefix ? `${pageTitle} (${language.name})` : pageTitle;
   return {
     title,
     description,

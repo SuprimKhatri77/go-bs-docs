@@ -1,0 +1,43 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Errors",
+  description:
+    "bikram-sambat-ts throws typed errors: InvalidBSDateError, DateOutOfRangeError, BSDateFormatError and InvalidDateOrderError, and how to catch them.",
+  path: "/docs/ts/api/errors",
+});
+
+<DocsHeader
+  title="Errors"
+  description="Invalid input throws a typed error you can check with instanceof. Validation helpers like isValidBsDate return false instead of throwing."
+/>
+
+| Error                   | Extends       | Thrown when                                                                                                                              | go-bs equivalent                                       |
+| ----------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `InvalidBSDateError`    | `RangeError`  | A BS year, month or day is out of range or not an integer (including `NaN`, `Infinity` and fractions). `field` says which: `"year"`, `"month"` or `"day"`. | `ErrInvalidYear` / `ErrInvalidMonth` / `ErrInvalidDay` |
+| `DateOutOfRangeError`   | `RangeError`  | An AD date, or the result of `addBsDays`/`subtractBsDays`, falls outside the supported range.                                             | `ErrOutOfRange`                                        |
+| `BSDateFormatError`     | `SyntaxError` | `parseBsDate` gets a string not shaped like `"YYYY-MM-DD"`. `input` holds the string.                                                     | `ErrInvalidFormat`                                     |
+| `InvalidDateOrderError` | `RangeError`  | `getBsAge`'s `birth` is after its `today`.                                                                                                | `ErrInvalidDateOrder`                                  |
+| `RangeError`            | —             | `addBsDays`/`subtractBsDays` gets a day count that isn't a safe integer, or a weekday-name function gets a weekday outside 0–6.           | — / `ErrInvalidWeekday`                                |
+| `TypeError`             | —             | An argument has the wrong type: not a `Date`, an Invalid Date, not an object, not a string.                                              | —                                                      |
+
+## Checking for a specific error
+
+```ts
+import { InvalidBSDateError, bsToAd } from "bikram-sambat-ts";
+
+try {
+  bsToAd({ year: 2083, month: 13, day: 1 });
+} catch (error) {
+  if (error instanceof InvalidBSDateError) {
+    error.field; // "month"
+    error.message; // "bs: invalid month: 13"
+  }
+}
+```
+
+Because every error extends `RangeError`, `SyntaxError` or `TypeError`, code that only checks the
+built-in classes still works. If your app somehow loads both the ESM and the CommonJS build of the
+package, their error classes are distinct and `instanceof` across them fails; checking
+`error.name` (e.g. `"InvalidBSDateError"`) works either way.

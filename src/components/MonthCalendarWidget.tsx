@@ -6,12 +6,33 @@ import type { GoBS } from "@/lib/wasm";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+/**
+ * Today's Gregorian date in Nepal (UTC+05:45) as "YYYY-MM-DD", so "today" is
+ * highlighted by Nepal's calendar day, the same day TodayBS reports, not by
+ * UTC's (which lags Nepal's by a day for 5h45m after Nepal's midnight).
+ */
+function todayInNepalISO(): string {
+  return new Date(Date.now() + (5 * 60 + 45) * 60_000).toISOString().slice(0, 10);
 }
 
+/** The Go version: the grid comes from go-bs's MonthCalendar, compiled to WebAssembly. */
 export function MonthCalendarWidget() {
   const state = useGoBS();
+  return (
+    <WidgetFrame>
+      {(year, month) => (
+        <>
+          {state.status === "loading" && <div className="py-10 text-center text-sm text-muted">Loading…</div>}
+          {state.status === "error" && <div className="py-10 text-center text-sm text-accent">{state.error}</div>}
+          {state.status === "ready" && <GoGrid goBS={state.goBS} year={year} month={month} />}
+        </>
+      )}
+    </WidgetFrame>
+  );
+}
+
+/** The year/month inputs and card that every language's widget shares. */
+export function WidgetFrame({ children }: { children: (year: number, month: number) => React.ReactNode }) {
   const [year, setYear] = useState(2083);
   const [month, setMonth] = useState(6);
 
@@ -21,23 +42,48 @@ export function MonthCalendarWidget() {
         <NumberField label="Year" value={year} onChange={setYear} min={1979} max={2100} width="w-24" />
         <NumberField label="Month" value={month} onChange={setMonth} min={1} max={12} width="w-16" />
       </div>
-      {state.status === "loading" && <div className="py-10 text-center text-sm text-muted">Loading…</div>}
-      {state.status === "error" && <div className="py-10 text-center text-sm text-accent">{state.error}</div>}
-      {state.status === "ready" && <Grid goBS={state.goBS} year={year} month={month} />}
+      {children(year, month)}
     </div>
   );
 }
 
-function Grid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }) {
+function GoGrid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }) {
   const result = useMemo(() => goBS.monthCalendar(year, month), [goBS, year, month]);
-  const today = useMemo(() => goBS.adToBS(todayISO()).value, [goBS]);
+  const today = useMemo(() => goBS.adToBS(todayInNepalISO()).value ?? null, [goBS]);
 
   if (result.error || !result.value) {
     return <div className="py-10 text-center text-sm text-accent">{result.error}</div>;
   }
 
   const { weeks, monthName, monthNameNepali } = result.value;
+  return (
+    <MonthGrid
+      year={year}
+      month={month}
+      weeks={weeks}
+      monthName={monthName ?? ""}
+      monthNameNepali={monthNameNepali}
+      today={today}
+    />
+  );
+}
 
+/** The rendered month: a Sunday-first table of day numbers, null for empty cells. */
+export function MonthGrid({
+  year,
+  month,
+  weeks,
+  monthName,
+  monthNameNepali,
+  today,
+}: {
+  year: number;
+  month: number;
+  weeks: (number | null)[][];
+  monthName: string;
+  monthNameNepali?: string;
+  today: { year: number; month: number; day: number } | null;
+}) {
   return (
     <div>
       <div className="mb-3 text-sm font-medium">
@@ -82,6 +128,10 @@ function Grid({ goBS, year, month }: { goBS: GoBS; year: number; month: number }
       </table>
     </div>
   );
+}
+
+export function WidgetError({ message }: { message: string }) {
+  return <div className="py-10 text-center text-sm text-accent">{message}</div>;
 }
 
 function NumberField({

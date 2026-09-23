@@ -1,0 +1,93 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Conversion",
+  description:
+    "Convert dates between Gregorian (AD) and Bikram Sambat (BS) in TypeScript with bikram-sambat-ts's adToBs, bsToAd and todayBs, and how they handle timezones.",
+  path: "/docs/ts/api/conversion",
+});
+
+<DocsHeader
+  title="Conversion"
+  description="Converting between Gregorian (AD) and Bikram Sambat (BS), and today's date in Nepal."
+/>
+
+<ApiEntry lang="ts" signature="function adToBs(date: Date): BSDate">
+
+Converts a Gregorian date to Bikram Sambat. Only the calendar date matters: the result depends on
+`date`'s local year, month and day (`getFullYear()`, `getMonth()`, `getDate()`), and the time of
+day is ignored. Throws `DateOutOfRangeError` if the date is before AD 1922-04-13 or after AD
+2044-04-13, and `TypeError` if `date` isn't a `Date` or is an Invalid Date.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function bsToAd(date: BSDate): Date">
+
+Converts a Bikram Sambat date to a new `Date` at **local midnight** of the corresponding Gregorian
+day, so its `getFullYear()`, `getMonth()` and `getDate()` are the AD date, and passing it back to
+`adToBs` gives the original BS date. Throws `InvalidBSDateError` if `date` isn't a real, supported
+BS date.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function todayBs(now?: Date): BSDate">
+
+Today's date **in Nepal** (Nepal Standard Time, UTC+05:45) as a BS date, whatever timezone the code
+runs in. Pass `now` to ask about another instant. Throws `DateOutOfRangeError` if that date in Nepal
+is outside BS 1979–2100. Matches go-bs's `TodayBS`.
+
+</ApiEntry>
+
+## Example
+
+```ts
+import { adToBs, bsToAd, todayBs } from "bikram-sambat-ts";
+
+adToBs(new Date(2026, 8, 22)); // { year: 2083, month: 6, day: 6 }
+adToBs(new Date(2026, 8, 22, 23, 59)); // { year: 2083, month: 6, day: 6 } (time of day ignored)
+
+bsToAd({ year: 2083, month: 6, day: 6 }).toDateString(); // "Tue Sep 22 2026"
+
+// 20:00 UTC on 22 September 2026 is already 01:45 on the 23rd in Nepal.
+todayBs(new Date("2026-09-22T20:00:00Z")); // { year: 2083, month: 6, day: 7 }
+```
+
+## Timezone behavior
+
+This package converts **calendar dates**, not instants. A JavaScript `Date` is an instant, so the
+package reads the **local** calendar consistently in both directions: `adToBs` reads the local
+year/month/day, and `bsToAd` returns local midnight. So `adToBs(bsToAd(x))` is always `x`, in any
+timezone, and daylight saving never shifts a result (all day arithmetic uses UTC day numbers
+internally). This mirrors go-bs, where `ADToBS` reads the `time.Time`'s year, month and day as
+expressed.
+
+Two things to watch for:
+
+- **`new Date("2026-09-22")` is UTC midnight**, not local midnight — that's how JavaScript parses a
+  date-only ISO string. West of UTC its local date is still the 21st:
+
+  ```ts
+  // Running in America/Los_Angeles:
+  adToBs(new Date("2026-09-22")); // { year: 2083, month: 6, day: 5 }  (local date: Sep 21)
+  adToBs(new Date("2026-09-22T00:00")); // { year: 2083, month: 6, day: 6 }  (local midnight)
+  ```
+
+  Use `new Date(2026, 8, 22)` or `new Date("2026-09-22T00:00")` when you mean a calendar date.
+
+- **`adToBs(new Date())` gives today in the runtime's timezone.** In a browser that's the user's own
+  day. On a server running in UTC (the usual default for cloud VMs and containers), it's still
+  yesterday in Nepal for the 5 h 45 min after Nepal's midnight. Use `todayBs()` whenever "today"
+  should mean today in Nepal.
+
+<Callout>
+  A handful of timezones skipped a whole calendar day when they moved across the International Date
+  Line — in this range, 1994-12-31 in `Pacific/Kiritimati` and 2011-12-30 in `Pacific/Apia`. No
+  `Date` has that day as its local date, so there `bsToAd` for the matching BS day returns the
+  following day. The test suite runs in 9 timezones, including both of those.
+</Callout>
+
+<Callout>
+  Every one of the 44,562 supported days round-trips exactly in both directions, and is checked
+  against go-bs's own output for the same day — see [calendar data](/docs/ts/data-verification).
+</Callout>

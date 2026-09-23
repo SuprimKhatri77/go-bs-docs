@@ -3,11 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeScript } from "@/components/ThemeScript";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/SiteLinks";
+import { LANGUAGES } from "@/lib/languages";
 import {
   AUTHOR,
   FEED_ALTERNATES,
-  GITHUB_URL,
-  PKG_GO_DEV_URL,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
@@ -44,6 +44,9 @@ export const metadata: Metadata = {
     "Go",
     "Golang",
     "go-bs",
+    "TypeScript",
+    "JavaScript",
+    "bikram-sambat-ts",
     "Nepal",
   ],
   alternates: { types: FEED_ALTERNATES },
@@ -84,17 +87,16 @@ const jsonLd = {
       description: SITE_DESCRIPTION,
       inLanguage: "en",
     },
-    {
+    ...LANGUAGES.map((language) => ({
       "@type": "SoftwareSourceCode",
-      "@id": `${SITE_URL}/#software`,
-      name: SITE_NAME,
-      description: SITE_DESCRIPTION,
-      codeRepository: GITHUB_URL,
-      programmingLanguage: { "@type": "ComputerLanguage", name: "Go" },
+      "@id": `${SITE_URL}/#software-${language.id}`,
+      name: language.packageName,
+      codeRepository: language.repoUrl,
+      programmingLanguage: { "@type": "ComputerLanguage", name: language.name },
       license: "https://opensource.org/licenses/MIT",
       author: { "@type": "Person", name: AUTHOR.name, url: AUTHOR.url },
-      url: SITE_URL,
-    },
+      url: `${SITE_URL}/docs${language.prefix}/getting-started`,
+    })),
   ],
 };
 
@@ -117,26 +119,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Header />
         <div className="flex-1">{children}</div>
-        <footer className="border-t border-border py-8 text-center text-sm text-muted">
-          MIT licensed.{" "}
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="underline decoration-border underline-offset-4 hover:text-foreground"
-          >
-            Source
-          </a>{" "}
-          ·{" "}
-          <a
-            href={PKG_GO_DEV_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="underline decoration-border underline-offset-4 hover:text-foreground"
-          >
-            pkg.go.dev
-          </a>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

@@ -1,9 +1,9 @@
 import { ogImage, ogSize } from "@/lib/og";
 
-export const alt = "Formatting & Nepali — go-bs docs";
+export const alt = "Calendar-grid helpers — bikram-sambat-ts docs";
 export const size = ogSize;
 export const contentType = "image/png";
 
 export default function Image() {
-  return ogImage("/docs/api/formatting");
+  return ogImage("/docs/ts/api/calendar-grid");
 }

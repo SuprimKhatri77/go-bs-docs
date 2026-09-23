@@ -29,10 +29,21 @@ export function Callout({ children, tone = "note" }: { children: React.ReactNode
   );
 }
 
-/** A function/method/type signature, styled as a small mono heading — not a bordered card. */
-export async function ApiEntry({ signature, children }: { signature: string; children: React.ReactNode }) {
+/**
+ * A function/method/type signature, styled as a small mono heading — not a
+ * bordered card. `lang` is the highlighting language (Go unless given).
+ */
+export async function ApiEntry({
+  signature,
+  lang = "go",
+  children,
+}: {
+  signature: string;
+  lang?: "go" | "ts";
+  children: React.ReactNode;
+}) {
   const html = await codeToHtml(signature.trim(), {
-    lang: "go",
+    lang,
     themes: { light: "github-light", dark: "github-dark" },
     defaultColor: false,
   });

@@ -1,0 +1,78 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Calendar data: sources & verification",
+  description:
+    "Where bikram-sambat-ts's Bikram Sambat calendar data comes from, and how it's kept identical to go-bs, day by day, with fixtures recorded from the published Go module.",
+  path: "/docs/ts/data-verification",
+});
+
+<DocsHeader
+  title="Calendar data: sources & verification"
+  description="bikram-sambat-ts doesn't collect calendar data itself: it uses go-bs's verified dataset, and is tested to give the same answer as go-bs for every supported day."
+/>
+
+bikram-sambat-ts supports Bikram Sambat years **1979–2100** inclusive (AD 1922-04-13 to
+2044-04-13). BS month lengths aren't computed from a formula — they follow Nepal's published
+calendar and ship as a static table in the package. **No calendar service is contacted at
+runtime**: the package makes no network requests and works fully offline.
+
+## Where the data comes from
+
+The dataset is taken from go-bs, which is treated as the reference specification. go-bs's own
+[sources & verification](/docs/data-verification) page explains how that data was collected and
+checked (Hamro Patro's structured calendar data for BS 2000–2100, and a cross-checked library table
+for BS 1979–1999). The pipeline into this package is:
+
+```text
+go-bs (the published Go module, at a pinned version)
+   │  tools/go-reference  (maintainer tool, run by hand)
+   ▼
+data/calendar.json                  the month-length table
+tests/fixtures/go-conversions.json  go-bs's output for all 44,562 supported days
+tests/fixtures/go-months.json       go-bs's output for all 1,464 supported months
+tests/fixtures/go-cases.json        go-bs's output for ~1,500 edge cases
+   │  scripts/generate-data.ts
+   ▼
+src/data.ts                         generated, committed, never edited by hand
+```
+
+The maintainer tool depends on the **published** go-bs module (pinned in its `go.mod` and checked
+against `go.sum`), not a local checkout, and reads the table through go-bs's public API. CI
+regenerates everything from that pinned version and fails if the result differs from what's
+committed.
+
+## How the two packages are kept identical
+
+Correctness rests on three separate checks, so a mistake would have to get past all of them:
+
+1. **The same dataset** — the test suite compares `src/data.ts` with go-bs's table month by month,
+   and pins a checksum of all 1,464 month lengths.
+2. **Independently known dates** — go-bs's verified AD/BS pairs (the BS new years of 2000, 2010,
+   2062, 2081 and 2082, both ends of the range, and more), ported as tests.
+3. **go-bs's own answers** — for every supported day: the AD date, weekday and day of the year; for
+   every month: the calendar grid, start and end, and next/previous month; plus validation,
+   parsing, formatting (English and Nepali), arithmetic and age edge cases. The tests compare
+   against those recordings and never run Go themselves.
+
+On top of that, every day round-trips exactly in both directions, and the whole suite runs in 9
+timezones. Round trips alone wouldn't prove much — consistently wrong data round-trips too — which
+is why checks 1–3 exist.
+
+## Known issues
+
+These come from go-bs's data and are reproduced on purpose, so the two packages never disagree.
+Fixes land in go-bs first, with a cited source, and reach this package through a regenerated
+table.
+
+- **BS 1979–1999** isn't checked day by day against a live calendar source; only the year
+  boundaries are corroborated.
+- **BS 2087 has 367 days and BS 2096 has 364**, where every other year has 365 or 366. This most
+  likely comes from projected, not yet officially published, far-future data — the open-source
+  tables disagree with each other a lot in that period too.
+
+<Callout tone="warn">
+  Treat conversions for roughly BS 2085–2100 as provisional until Nepal's calendar for those years
+  is officially published.
+</Callout>
