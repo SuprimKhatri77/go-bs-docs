@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Command } from "cmdk";
-import { docsNav } from "@/lib/nav";
+import { LANGUAGES, languageFromPath } from "@/lib/languages";
+import { docsNavFor } from "@/lib/nav";
 import { toggleTheme } from "@/lib/theme";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const current = languageFromPath(usePathname());
+  // The language being viewed first; other languages' pages are searchable too.
+  const languages = [current, ...LANGUAGES.filter((l) => l.id !== current.id)];
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -86,21 +90,22 @@ export function CommandPalette() {
           <Command.Empty className="px-3 py-6 text-center text-sm text-muted">No results.</Command.Empty>
           <Command.Item
             value="home"
-            onSelect={() => go("/")}
+            onSelect={() => go(`/docs${current.prefix}/getting-started`)}
             className="cursor-pointer rounded-md px-3 py-2 text-sm data-[selected=true]:bg-surface"
           >
             Home
           </Command.Item>
-          {docsNav.map((section) => (
+          {languages.flatMap((language) =>
+            docsNavFor(language).map((section) => (
             <Command.Group
-              key={section.title}
-              heading={section.title}
+              key={`${language.id}-${section.title}`}
+              heading={language.id === current.id ? section.title : `${language.name} · ${section.title}`}
               className="mt-2 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-muted"
             >
               {section.items.map((item) => (
                 <Command.Item
                   key={item.href}
-                  value={item.title}
+                  value={`${item.title} ${language.name} ${item.href}`}
                   onSelect={() => go(item.href)}
                   className="cursor-pointer rounded-md px-3 py-2 text-sm data-[selected=true]:bg-surface"
                 >
@@ -109,7 +114,8 @@ export function CommandPalette() {
                 </Command.Item>
               ))}
             </Command.Group>
-          ))}
+            )),
+          )}
         </Command.List>
       </Command.Dialog>
     </>

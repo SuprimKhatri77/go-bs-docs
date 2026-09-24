@@ -16,6 +16,7 @@ Go module, deployed independently (Vercel).
 
 - Every concrete number, date, or output shown in the docs (converter examples, code snippets with `//` output comments, table entries) must be verified against the real go-bs library before being written — run a small Go program against it, don't infer from memory. Getting a documented example wrong is worse than not showing one; this project spent significant effort getting go-bs's calendar data verified, and the docs shouldn't undermine that with sloppy examples.
 - If go-bs's public API changes, update `src/lib/nav.ts` and the relevant `/docs/api/*` page together — don't let them drift.
+- The same rule applies to the TypeScript pages under `/docs/ts/`: verify every example's output against the published `bikram-sambat-ts` package (installed here as a dependency), and keep `src/lib/nav.ts` and the `/docs/ts/api/*` pages in sync with its API.
 
 ## The WASM build
 

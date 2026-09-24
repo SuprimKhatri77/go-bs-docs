@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { flatDocsNav } from "@/lib/nav";
+import { getLanguage } from "@/lib/languages";
+import { findDocsPage } from "@/lib/nav";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
 export const ogSize = { width: 1200, height: 630 };
@@ -21,10 +22,11 @@ async function logoDataUri() {
  * with a docs href it shows that page's title and nav description.
  */
 export async function ogImage(href?: string) {
-  const page = href ? flatDocsNav.find((item) => item.href === href) : undefined;
+  const page = href ? findDocsPage(href) : undefined;
+  const language = page ? getLanguage(page.language) : undefined;
   if (href && !page) throw new Error(`ogImage: no docs nav entry for ${href}`);
 
-  const title = page?.title ?? "Bikram Sambat date conversion for Go";
+  const title = page?.title ?? "Bikram Sambat date conversion for Go and TypeScript";
   const subtitle = page?.description ?? SITE_DESCRIPTION;
   const logo = await logoDataUri();
 
@@ -46,7 +48,11 @@ export async function ogImage(href?: string) {
           {/* eslint-disable-next-line @next/next/no-img-element -- rendered by ImageResponse, not the browser */}
           <img src={logo} width={56} height={56} alt="" />
           <div style={{ fontSize: 40, fontWeight: 600 }}>{SITE_NAME}</div>
-          {page && <div style={{ fontSize: 32, color: "#a8a39a", marginLeft: 8 }}>docs</div>}
+          {page && (
+            <div style={{ fontSize: 32, color: "#a8a39a", marginLeft: 8 }}>
+              {language && language.prefix ? `${language.name} docs` : "docs"}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ fontSize: 76, fontWeight: 600, lineHeight: 1.05, letterSpacing: -2 }}>{title}</div>

@@ -1,0 +1,156 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Arithmetic & ranges",
+  description:
+    "Date arithmetic for Bikram Sambat dates in TypeScript: addBsDays, nextBsMonth, daysBetweenBs, startOfBsMonth, endOfBsYear, getBsDayOfWeek, getBsAge and more in bikram-sambat-ts.",
+  path: "/docs/ts/api/arithmetic",
+});
+
+<DocsHeader
+  title="Arithmetic & ranges"
+  description="Adding and subtracting days and months, spans between dates, month/year boundaries, and age."
+/>
+
+## Days
+
+<ApiEntry lang="ts" signature="function addBsDays(date: BSDate, days: number): BSDate">
+
+The date `days` calendar days after `date` (or before, if `days` is negative). Throws
+`InvalidBSDateError` if `date` is invalid, `RangeError` if `days` isn't an integer, and
+`DateOutOfRangeError` if the result falls outside BS 1979–2100.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function subtractBsDays(date: BSDate, days: number): BSDate">
+
+The date `days` calendar days before `date`. The same as `addBsDays(date, -days)`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function daysBetweenBs(from: BSDate, to: BSDate): number">
+
+The number of calendar days from `from` to `to`: positive if `to` is later, negative if earlier,
+zero if equal. The argument order matches go-bs's `DaysBetween(a, b)`: the result is `to − from`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function getBsDayOfWeek(date: BSDate): Weekday">
+
+The day of the week `date` falls on, numbered like `Date#getDay()` (0 is Sunday).
+
+</ApiEntry>
+
+```ts
+import { addBsDays, daysBetweenBs, getBsDayOfWeek, subtractBsDays } from "bikram-sambat-ts";
+
+const d = { year: 2083, month: 6, day: 6 };
+
+addBsDays(d, 10); // { year: 2083, month: 6, day: 16 }
+subtractBsDays(d, 10); // { year: 2083, month: 5, day: 27 }
+addBsDays(d, 1); // { year: 2083, month: 6, day: 7 }
+
+getBsDayOfWeek(d); // 2 (Tuesday)
+
+daysBetweenBs(d, { year: 2083, month: 6, day: 16 }); // 10
+```
+
+## Months
+
+<ApiEntry lang="ts" signature="function nextBsMonth(date: BSDate): BSDate">
+
+The date one BS month after `date`, on the same day of the month — **clamped** to the target
+month's last day if it's shorter, rather than rolling over into the month after.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function previousBsMonth(date: BSDate): BSDate">
+
+The date one BS month before `date`, with the same clamping.
+
+</ApiEntry>
+
+<Callout tone="warn">
+  The clamping is deliberate, and matches go-bs's `NextMonth`/`PreviousMonth`: day 32 in a 32-day
+  month becomes day 31 in a 31-day target month, not day 1 of the month after. Past either end of
+  the range, both throw `InvalidBSDateError` with `field: "year"`, like go-bs's `ErrInvalidYear`
+  (whereas `addBsDays` throws `DateOutOfRangeError`, like go-bs's `AddDays`).
+</Callout>
+
+```ts
+import { nextBsMonth, previousBsMonth } from "bikram-sambat-ts";
+
+nextBsMonth({ year: 2083, month: 6, day: 6 }); // { year: 2083, month: 7, day: 6 }
+previousBsMonth({ year: 2083, month: 6, day: 6 }); // { year: 2083, month: 5, day: 6 }
+nextBsMonth({ year: 2083, month: 12, day: 15 }); // { year: 2084, month: 1, day: 15 }
+
+// Ashadh (month 3) 2083 has 32 days; Shrawan (month 4) has only 31.
+nextBsMonth({ year: 2083, month: 3, day: 32 }); // { year: 2083, month: 4, day: 31 }
+```
+
+## Month and year boundaries
+
+<ApiEntry lang="ts" signature="function startOfBsMonth(date: BSDate): BSDate">
+
+Day 1 of `date`'s month.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function endOfBsMonth(date: BSDate): BSDate">
+
+The last day (29–32) of `date`'s month.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function startOfBsYear(date: BSDate): BSDate">
+
+Baisakh 1 of `date`'s year.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function endOfBsYear(date: BSDate): BSDate">
+
+The last day of Chaitra in `date`'s year.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function getBsDayOfYear(date: BSDate): number">
+
+`date`'s day of the year: 1 for Baisakh 1, up to 365 or 366 for the last day of Chaitra.
+
+</ApiEntry>
+
+```ts
+import { endOfBsMonth, endOfBsYear, getBsDayOfYear, startOfBsMonth, startOfBsYear } from "bikram-sambat-ts";
+
+const d = { year: 2083, month: 6, day: 6 };
+
+startOfBsMonth(d); // { year: 2083, month: 6, day: 1 }
+endOfBsMonth(d); // { year: 2083, month: 6, day: 31 }
+startOfBsYear(d); // { year: 2083, month: 1, day: 1 }
+endOfBsYear(d); // { year: 2083, month: 12, day: 30 } (Chaitra 2083 has 30 days)
+getBsDayOfYear(d); // 162
+```
+
+These validate the whole date, including the day. go-bs's versions only check the year and
+month.
+
+## Age
+
+<ApiEntry lang="ts" signature="function getBsAge(birth: BSDate, today?: BSDate): BSAge">
+
+The calendar age from `birth` to `today` as `{ years, months, days }`, counted in BS months — real
+calendar math with month/day borrowing, the same algorithm as go-bs's `Age`, not a day count divided
+by 365. `today` defaults to `todayBs()`. Throws `InvalidDateOrderError` if `birth` is after `today`.
+
+</ApiEntry>
+
+```ts
+import { getBsAge } from "bikram-sambat-ts";
+
+const birth = { year: 2060, month: 6, day: 15 };
+
+getBsAge(birth, { year: 2083, month: 6, day: 6 }); // { years: 22, months: 11, days: 22 }
+getBsAge(birth); // age as of today in Nepal
+```

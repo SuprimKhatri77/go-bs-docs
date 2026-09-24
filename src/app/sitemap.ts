@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
-import { flatDocsNav } from "@/lib/nav";
+import { DEFAULT_LANGUAGE } from "@/lib/languages";
+import { allDocsPages } from "@/lib/nav";
 import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return flatDocsNav.map((item) => ({
+  return allDocsPages.map((item) => ({
     url: `${SITE_URL}${item.href}`,
     changeFrequency: "monthly",
-    priority: item.href === "/docs/getting-started" ? 1 : 0.8,
+    priority: item.slug === "getting-started" ? (item.language === DEFAULT_LANGUAGE.id ? 1 : 0.9) : 0.8,
   }));
 }

@@ -21,6 +21,7 @@ export const metadata = docsMetadata({
 | `ErrOutOfRange`        | An AD date falls outside the Gregorian range corresponding to `MinBSYear..MaxBSYear`.                                                 |
 | `ErrInvalidFormat`     | A string passed to `Parse`, `UnmarshalText` or `Scan` is not shaped like `"YYYY-MM-DD"`.                                               |
 | `ErrInvalidDateOrder`  | `Age`'s `birthBS` is after its `todayBS`.                                                                                             |
+| `ErrInvalidWeekday`    | `WeekdayNameNepali` gets a `time.Weekday` outside `time.Sunday..time.Saturday`. Added in v0.7.0.                                        |
 
 ## Checking for a specific error
 

@@ -14,7 +14,7 @@ import { SITE_URL } from "@/lib/site";
  */
 
 /** Components that only make sense in a browser; a `##` section containing one is dropped. */
-const INTERACTIVE = ["MonthCalendarWidget"];
+const INTERACTIVE = ["MonthCalendarWidget", "MonthCalendarWidgetTS"];
 
 function attrs(tag: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -71,8 +71,9 @@ export function mdxToMarkdown(source: string): string {
     return `# ${title}\n\n${description}`;
   });
 
-  md = md.replace(/<ApiEntry(\s+signature=(?:"[^"]*"|'[^']*'))>([\s\S]*?)<\/ApiEntry>/g, (_, a, body) => {
-    return "```go\n" + attrs(a).signature.trim() + "\n```\n\n" + dedent(body).trim();
+  md = md.replace(/<ApiEntry((?:\s+\w+=(?:"[^"]*"|'[^']*'))+)\s*>([\s\S]*?)<\/ApiEntry>/g, (_, a, body) => {
+    const { signature, lang = "go" } = attrs(a);
+    return "```" + lang + "\n" + signature.trim() + "\n```\n\n" + dedent(body).trim();
   });
 
   md = md.replace(/<Callout([^>]*)>([\s\S]*?)<\/Callout>/g, (_, a, body) => {

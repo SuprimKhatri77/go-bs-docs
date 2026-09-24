@@ -1,0 +1,107 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Dates, parsing & validation",
+  description:
+    "The BSDate type in bikram-sambat-ts: parse and validate Bikram Sambat dates in TypeScript with parseBsDate, isValidBsDate, daysInBsMonth and daysInBsYear.",
+  path: "/docs/ts/api/date",
+});
+
+<DocsHeader
+  title="Dates, parsing & validation"
+  description="The BSDate type, the supported range, parsing, and validating year/month/day combinations."
+/>
+
+<ApiEntry lang="ts" signature="interface BSDate { year: number; month: number; day: number }">
+
+A Bikram Sambat calendar date, as a plain object. `month` is 1-based — 1 is Baisakh, 12 is Chaitra.
+Nothing stops you building an invalid one like `{ year: 2083, month: 13, day: 1 }`, so every
+function that takes a `BSDate` validates it first and throws `InvalidBSDateError` if it isn't real.
+Functions return new objects and never modify their arguments.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6">
+
+A day of the week, numbered like `Date#getDay()`: 0 is Sunday, 6 is Saturday.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="const MIN_BS_YEAR = 1979
+const MAX_BS_YEAR = 2100">
+
+The inclusive bounds of the supported BS years, corresponding to AD 1922-04-13 to 2044-04-13.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function parseBsDate(value: string): BSDate">
+
+Parses `"YYYY-MM-DD"` (zero-padded, ASCII digits, nothing before or after), the form `formatBsDate`
+produces by default. Throws `BSDateFormatError` if the string isn't shaped like that, or
+`InvalidBSDateError` if it is but isn't a real date (e.g. `"2083-13-01"`). For Nepali digits,
+convert with `fromNepaliDigits` first.
+
+</ApiEntry>
+
+## Validation
+
+<ApiEntry lang="ts" signature="function isValidBsDate(date: BSDate): boolean">
+
+Reports whether `date` is a real Bikram Sambat date in the supported range — checked against that
+month's actual length, not just a generic 1–32 bound. Never throws: `NaN`, `Infinity`, fractional
+numbers, non-numbers and non-objects (including `null`) all return `false`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function isSupportedBsYear(year: number): boolean">
+
+Reports whether `year` is an integer from `MIN_BS_YEAR` to `MAX_BS_YEAR`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function daysInBsMonth(year: number, month: number): number">
+
+The number of days (29–32) in the given BS month. Throws `InvalidBSDateError` if the year or month
+is out of range.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function daysInBsYear(year: number): number">
+
+The total number of days in the given BS year. Throws `InvalidBSDateError` if the year is out of
+range.
+
+</ApiEntry>
+
+## Example
+
+```ts
+import {
+  MAX_BS_YEAR,
+  MIN_BS_YEAR,
+  daysInBsMonth,
+  daysInBsYear,
+  isSupportedBsYear,
+  isValidBsDate,
+  parseBsDate,
+} from "bikram-sambat-ts";
+
+parseBsDate("2083-06-06"); // { year: 2083, month: 6, day: 6 }
+parseBsDate("2083/06/06"); // throws BSDateFormatError
+parseBsDate("2083-13-01"); // throws InvalidBSDateError (field: "month")
+
+isValidBsDate({ year: 2083, month: 9, day: 32 }); // false — Poush 2083 only has 30 days
+isValidBsDate({ year: 2083, month: NaN, day: 1 }); // false
+isSupportedBsYear(2101); // false
+
+daysInBsMonth(2083, 6); // 31
+daysInBsYear(2083); // 365
+[MIN_BS_YEAR, MAX_BS_YEAR]; // [1979, 2100]
+```
+
+<Callout>
+  JavaScript numbers can be things a Go `int` never is — `NaN`, `Infinity`, `1.5`. This package
+  rejects all of them explicitly (`isValidBsDate` returns `false`, everything else throws), rather
+  than letting them quietly produce a wrong date.
+</Callout>

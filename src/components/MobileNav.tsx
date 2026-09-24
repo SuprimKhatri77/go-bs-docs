@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-
-const LINKS = [
-  { href: "/docs/getting-started", label: "Docs" },
-  { href: "/docs/api/conversion", label: "API reference" },
-  { href: "/docs/data-verification", label: "Calendar data" },
-];
+import { useSectionLinks } from "./SiteLinks";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const links = useSectionLinks();
 
   return (
     <div className="sm:hidden">
@@ -28,8 +24,8 @@ export function MobileNav() {
       {open && (
         <nav className="absolute inset-x-0 top-14 border-b border-border bg-background px-4 py-3 shadow-sm">
           <ul className="space-y-1 text-sm">
-            {LINKS.map((link) => (
-              <li key={link.href}>
+            {links.map((link) => (
+              <li key={link.label}>
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}

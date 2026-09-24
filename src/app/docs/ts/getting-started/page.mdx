@@ -1,0 +1,80 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Getting started",
+  description:
+    "Install bikram-sambat-ts and convert dates between Gregorian (AD) and Bikram Sambat (BS), Nepal's calendar, in TypeScript or JavaScript. Zero dependencies, works offline in Node and browsers.",
+  path: "/docs/ts/getting-started",
+});
+
+<DocsHeader
+  title="Getting started"
+  description="Install bikram-sambat-ts and make your first Gregorian ↔ Bikram Sambat conversion."
+/>
+
+## Install
+
+bikram-sambat-ts has zero runtime dependencies. It ships ESM, CommonJS and type declarations, and
+runs in Node.js, Bun, Deno and browsers (React, Next.js, Vite, …). It never makes network requests:
+the calendar data is a static table in the package.
+
+```sh
+npm install bikram-sambat-ts
+# or
+pnpm add bikram-sambat-ts
+yarn add bikram-sambat-ts
+bun add bikram-sambat-ts
+```
+
+## Convert AD → BS
+
+```ts title="main.ts"
+import { adToBs } from "bikram-sambat-ts";
+
+// JavaScript months are zero-based: 8 is September.
+const bs = adToBs(new Date(2026, 8, 22));
+
+console.log(bs); // { year: 2083, month: 6, day: 6 }
+```
+
+## Convert BS → AD
+
+```ts
+import { bsToAd } from "bikram-sambat-ts";
+
+const ad = bsToAd({ year: 2083, month: 6, day: 6 });
+
+console.log(ad.toDateString()); // "Tue Sep 22 2026"
+```
+
+<Callout>
+  **Note:** BS months are 1-based: 1 is Baisakh, 12 is Chaitra. That's deliberately different from
+  JavaScript's own `Date#getMonth()`, which is 0-based.
+</Callout>
+
+## Today in Nepal
+
+```ts
+import { formatBsDate, todayBs } from "bikram-sambat-ts";
+
+todayBs(); // today's BS date in Nepal (UTC+05:45), whatever the runtime's timezone
+formatBsDate(todayBs(), "dddd, MMMM D, YYYY", { nepali: true }); // e.g. "मंगलवार, असोज ६, २०८३"
+```
+
+See [conversion](/docs/ts/api/conversion#timezone-behavior) for how `todayBs()` differs from
+`adToBs(new Date())`.
+
+## Supported range
+
+Bikram Sambat years **1979–2100** inclusive, corresponding to the Gregorian range **1922-04-13 to
+2044-04-13** — the same range as go-bs, because the calendar data is exported from go-bs itself.
+See [calendar data](/docs/ts/data-verification) for where it comes from and how the two packages
+are kept identical.
+
+## Where to next
+
+The [API reference](/docs/ts/api/conversion) covers everything: conversion, validation,
+comparison, date arithmetic and age, formatting in English or Nepali, and calendar-grid helpers
+for building calendar UIs. Every function throws a [typed error](/docs/ts/api/errors) on invalid
+input.

@@ -1,4 +1,5 @@
-import { flatDocsNav } from "@/lib/nav";
+import { getLanguage } from "@/lib/languages";
+import { allDocsPages } from "@/lib/nav";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -14,11 +15,12 @@ function escapeXml(s: string) {
 
 /** RSS 2.0 feed of the docs pages, in sidebar order. */
 export function GET() {
-  const items = flatDocsNav
+  const items = allDocsPages
     .map((item) => {
+      const language = getLanguage(item.language);
       const url = `${SITE_URL}${item.href}`;
       return `    <item>
-      <title>${escapeXml(item.title)}</title>
+      <title>${escapeXml(`${item.title} (${language.name})`)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <description>${escapeXml(item.description)}</description>

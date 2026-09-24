@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { languageFromPath } from "@/lib/languages";
 import { SITE_URL } from "@/lib/site";
 import { ClaudeIcon, CursorIcon, MarkdownIcon, OpenAIIcon } from "./BrandIcons";
 
@@ -57,9 +58,10 @@ function useFlash(): [boolean, () => void] {
 export function PageActions() {
   const pathname = usePathname();
   const mdPath = `${pathname}.md`;
+  const language = languageFromPath(pathname);
   const mdUrl = `${SITE_URL}${mdPath}`;
   const prompt = encodeURIComponent(
-    `Read ${mdUrl}, the docs for the go-bs Go library (Bikram Sambat dates), so I can ask questions about it.`,
+    `Read ${mdUrl}, the docs for the ${language.packageName} ${language.name} library (Bikram Sambat dates), so I can ask questions about it.`,
   );
 
   const [copiedMd, flashMd] = useFlash();

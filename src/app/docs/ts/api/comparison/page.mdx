@@ -1,0 +1,61 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Comparison",
+  description:
+    "Compare Bikram Sambat dates in TypeScript with bikram-sambat-ts: compareBsDates, isBeforeBs, isAfterBs and isEqualBs, and sorting dates.",
+  path: "/docs/ts/api/comparison",
+});
+
+<DocsHeader title="Comparison" description="Ordering and equality for BSDate values." />
+
+<ApiEntry lang="ts" signature="function compareBsDates(a: BSDate, b: BSDate): -1 | 0 | 1">
+
+`-1` if `a` is earlier than `b`, `0` if they're the same day, `1` if `a` is later. Works directly
+as an `Array#sort` comparator.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function isBeforeBs(a: BSDate, b: BSDate): boolean">
+
+Whether `a` is earlier than `b`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function isAfterBs(a: BSDate, b: BSDate): boolean">
+
+Whether `a` is later than `b`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function isEqualBs(a: BSDate, b: BSDate): boolean">
+
+Whether `a` and `b` are the same calendar day. Unlike `a === b`, this compares the values, not
+object identity.
+
+</ApiEntry>
+
+All four validate both dates and throw `InvalidBSDateError` for an invalid one. go-bs's `Compare`
+compares fields without validating; in JavaScript a `NaN` field would otherwise quietly compare as
+"equal".
+
+## Example
+
+```ts
+import { compareBsDates, formatBsDate, isAfterBs, isBeforeBs, isEqualBs } from "bikram-sambat-ts";
+
+const a = { year: 2083, month: 6, day: 6 };
+const b = { year: 2083, month: 6, day: 7 };
+
+isBeforeBs(a, b); // true
+isAfterBs(b, a); // true
+isEqualBs(a, { year: 2083, month: 6, day: 6 }); // true
+a === { year: 2083, month: 6, day: 6 }; // false — different objects
+
+compareBsDates(a, b); // -1
+compareBsDates(a, a); // 0
+
+[b, { year: 1979, month: 1, day: 1 }, a].sort(compareBsDates).map((d) => formatBsDate(d));
+// ["1979-01-01", "2083-06-06", "2083-06-07"]
+```

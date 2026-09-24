@@ -1,0 +1,115 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Formatting & Nepali",
+  description:
+    "Format Bikram Sambat dates in TypeScript with custom layouts, in English or in Nepali (Devanagari digits, Nepali month and weekday names), and convert between ASCII and Nepali digits.",
+  path: "/docs/ts/api/formatting",
+});
+
+<DocsHeader
+  title="Formatting & Nepali"
+  description="Custom layout strings in English or Nepali, month and weekday names, and converting between ASCII and Devanagari digits."
+/>
+
+<ApiEntry lang="ts" signature="function formatBsDate(date: BSDate, layout?: string, options?: { nepali?: boolean }): string
+function formatBsDate(date: BSDate, options?: { nepali?: boolean }): string">
+
+Renders `date` according to `layout` (default `"YYYY-MM-DD"`, the form `parseBsDate` accepts),
+replacing the tokens below — the same tokens and longest-match-first rule as go-bs's `Format`.
+With `{ nepali: true }`, numbers are rendered in Devanagari digits and names in Nepali, matching
+go-bs's `FormatNepali`. Any other character is copied through as-is, including ASCII digits in
+Nepali mode. Throws `InvalidBSDateError` if `date` is invalid.
+
+| Token  | Meaning            | English     | `nepali: true` |
+| ------ | ------------------ | ----------- | -------------- |
+| `YYYY` | 4-digit year       | `2083`      | `२०८३`         |
+| `YY`   | 2-digit year       | `83`        | `८३`           |
+| `MMMM` | month name         | `Ashwin`    | `असोज`         |
+| `MM`   | month, zero-padded | `06`        | `०६`           |
+| `M`    | month              | `6`         | `६`            |
+| `DD`   | day, zero-padded   | `06`        | `०६`           |
+| `D`    | day                | `6`         | `६`            |
+| `dddd` | weekday name       | `Tuesday`   | `मंगलवार`      |
+| `ddd`  | short weekday name | `Tue`       | `मंगल`         |
+
+</ApiEntry>
+
+```ts
+import { formatBsDate } from "bikram-sambat-ts";
+
+const d = { year: 2083, month: 6, day: 6 };
+
+formatBsDate(d); // "2083-06-06"
+formatBsDate(d, "dddd, MMMM D, YYYY"); // "Tuesday, Ashwin 6, 2083"
+formatBsDate(d, "D/M/YY"); // "6/6/83"
+
+formatBsDate(d, { nepali: true }); // "२०८३-०६-०६"
+formatBsDate(d, "dddd, MMMM D, YYYY", { nepali: true }); // "मंगलवार, असोज ६, २०८३"
+formatBsDate(d, "ddd D/M/YY", { nepali: true }); // "मंगल ६/६/८३"
+formatBsDate(d, "मिति: YYYY-MM-DD", { nepali: true }); // "मिति: २०८३-०६-०६"
+```
+
+<Callout tone="warn">
+  There's no escaping and no `MMM` token: Nepali month names don't abbreviate unambiguously (Ashadh
+  and Ashwin both start "Ash"). A literal `D` or `M` in a layout is always a token, so `MMM`
+  decomposes into `MM` + `M` (`"066"` for Ashwin 6) rather than erroring — the same as go-bs.
+</Callout>
+
+## Month and weekday names
+
+<ApiEntry lang="ts" signature="function getBsMonthName(month: number): string
+function getBsMonthNameNepali(month: number): string">
+
+The English or Devanagari name of a 1-based BS month, e.g. `"Ashwin"` / `"असोज"` for 6. Throws
+`InvalidBSDateError` for a month outside 1–12.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function getBsWeekdayName(weekday: number): string
+function getBsWeekdayNameNepali(weekday: number): string">
+
+The English or Devanagari name of a weekday numbered like `Date#getDay()` (0 is Sunday), e.g.
+`"Sunday"` / `"आइतवार"`. Throws `RangeError` for a weekday outside 0–6.
+
+</ApiEntry>
+
+```ts
+import { getBsDayOfWeek, getBsMonthName, getBsMonthNameNepali, getBsWeekdayName, getBsWeekdayNameNepali } from "bikram-sambat-ts";
+
+getBsMonthName(6); // "Ashwin"
+getBsMonthNameNepali(6); // "असोज"
+getBsWeekdayName(0); // "Sunday"
+getBsWeekdayNameNepali(0); // "आइतवार"
+getBsWeekdayNameNepali(getBsDayOfWeek({ year: 2083, month: 6, day: 6 })); // "मंगलवार"
+```
+
+The Nepali names follow Hamro Patro's calendar, the same source as the month names and the same
+spelling as go-bs: आइतवार, सोमवार, मंगलवार, बुधवार, बिहिवार, शुक्रवार, शनिवार. The Nepal Academy
+standard spelling uses -बार instead (आइतबार, …); both are in common use.
+
+## Nepali digits
+
+<ApiEntry lang="ts" signature="function toNepaliDigits(value: string | number): string">
+
+Replaces every ASCII digit (0–9) with its Devanagari equivalent. Other characters pass through
+unchanged. A number is converted with `String(value)` first.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="function fromNepaliDigits(value: string): string">
+
+The inverse: replaces every Devanagari digit (०–९) with its ASCII equivalent.
+
+</ApiEntry>
+
+```ts
+import { fromNepaliDigits, parseBsDate, toNepaliDigits } from "bikram-sambat-ts";
+
+toNepaliDigits("2083-06-06"); // "२०८३-०६-०६"
+toNepaliDigits(2083); // "२०८३"
+fromNepaliDigits("२०८३-०६-०६"); // "2083-06-06"
+
+parseBsDate(fromNepaliDigits("२०८३-०६-०६")); // { year: 2083, month: 6, day: 6 }
+```
