@@ -1,0 +1,105 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "SSR & Next.js",
+  description:
+    "Use bikram-sambat-react with server rendering and the Next.js App Router: Server Components, hydration without mismatches, today's date in Nepal, and importing the styles.",
+  path: "/docs/react/guides/ssr",
+});
+
+<DocsHeader
+  title="SSR & Next.js"
+  description="Server rendering, hydration, and what 'today' means on a server."
+/>
+
+## Safe to import anywhere
+
+bikram-sambat-react touches no browser globals when it's imported or rendered: `window` and
+`document` are only used in effects and event handlers. So it renders on a server
+(`renderToString`, streaming, static export) like any other component, and hydrates cleanly. The
+package's test suite renders both components on the server and hydrates them, checking for
+mismatch warnings.
+
+## Next.js App Router
+
+The package's entry file starts with `"use client"`, so you can render the components straight from
+a Server Component. Next.js treats them as Client Components automatically:
+
+```tsx title="app/page.tsx"
+// A Server Component: no "use client" needed here.
+import { NepaliCalendar, NepaliDatePicker } from "bikram-sambat-react";
+
+export default function Page() {
+  return (
+    <main>
+      <NepaliCalendar />
+      <NepaliDatePicker aria-label="Date" name="date" clearable />
+    </main>
+  );
+}
+```
+
+Import the stylesheet once, in your root layout:
+
+```tsx title="app/layout.tsx"
+import "bikram-sambat-react/styles.css";
+```
+
+Props that are functions (`onChange`, `isDateDisabled`, `renderDay`, `components`) can't be passed
+from a Server Component, as with any Client Component. Put the state in a small client component of
+your own:
+
+```tsx title="app/birth-date-field.tsx"
+"use client";
+
+import { useState } from "react";
+import { NepaliDatePicker, type BSDate } from "bikram-sambat-react";
+
+export function BirthDateField() {
+  const [date, setDate] = useState<BSDate>();
+  return <NepaliDatePicker aria-label="Date of birth" value={date} onChange={setDate} />;
+}
+```
+
+<Callout>
+  **Tip:** for a plain form you may not need state at all. `<NepaliDatePicker name="dob" />` submits
+  the date as `YYYY-MM-DD` through a hidden input, so it works from a Server Component with a
+  Server Action or a regular `<form action>`.
+</Callout>
+
+## Today, and hydration
+
+"Today" depends on the clock and timezone of whatever renders the page, and a server's usually
+differ from your visitor's. So by default the calendar doesn't decide today during server
+rendering:
+
+- **On the server and during hydration**, no day is highlighted as today. Server and client markup
+  are identical, so there's no hydration mismatch.
+- **Right after hydration**, the calendar highlights the device's local date
+  (`adToBs(new Date())`).
+- **Calendars mounted later**, like the date picker's popover, know today on their first render.
+
+To render today on the server too, pass it yourself. `todayBs()` from bikram-sambat-ts gives today
+in Nepal (UTC+05:45), whatever the server's timezone:
+
+```tsx
+import { todayBs } from "bikram-sambat-ts";
+
+<NepaliCalendar today={todayBs()} />;
+```
+
+The calendar then shows exactly that date as today on the server and in the browser.
+
+## The first month shown
+
+Without `value`, `defaultMonth` or `today`, the calendar opens on the current month **in Nepal**
+(`todayBs()`), not the device's. A server and a browser rendering at the same moment always agree on
+it, even in different timezones, so the markup matches. Pass `defaultMonth` (or `value`) to choose
+it yourself.
+
+## Other frameworks
+
+Nothing in the package is Next.js-specific. With Vite (client-only), import the stylesheet in your
+entry file and use the components anywhere. Any SSR setup works the same way as above, since the
+components don't read browser globals during render.

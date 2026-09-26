@@ -1,0 +1,178 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "NepaliDatePicker",
+  description:
+    "NepaliDatePicker, a Bikram Sambat (Nepali) date picker for React: a YYYY-MM-DD text input with a calendar popover, Nepali digits, icon position, clearing, form integration and keyboard support.",
+  path: "/docs/react/api/date-picker",
+});
+
+<DocsHeader
+  title="NepaliDatePicker"
+  description="A text input with a calendar popover for choosing a Bikram Sambat date."
+/>
+
+<ApiEntry lang="ts" signature="function NepaliDatePicker(props: NepaliDatePickerProps): JSX.Element">
+
+A `YYYY-MM-DD` text input, an optional clear button, and a button that opens a
+[`NepaliCalendar`](/docs/react/api/calendar) in a popover. Typing and picking both produce a
+[`BSDate`](/docs/react/api/types#bsdate); clearing produces `undefined`.
+
+</ApiEntry>
+
+```tsx
+import { useState } from "react";
+import { NepaliDatePicker, type BSDate } from "bikram-sambat-react";
+
+const [date, setDate] = useState<BSDate>();
+
+<label htmlFor="dob">Date of birth</label>
+<NepaliDatePicker id="dob" value={date} onChange={setDate} clearable />
+```
+
+<ReactDemo id="date-picker" />
+
+## Props
+
+Every prop is optional.
+
+### Value
+
+| Prop           | Type                                  | Default        | Description                                                                                             |
+| -------------- | ------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------- |
+| `value`        | `BSDate \| undefined`                 | (uncontrolled) | The selected date, controlled. Passing the prop at all, even as `undefined`, makes the picker controlled; `undefined` means empty. |
+| `defaultValue` | `BSDate`                              |                | The initial date, when uncontrolled.                                                                    |
+| `onChange`     | `(date: BSDate \| undefined) => void` |                | Called when the date changes: picked in the calendar, typed as a complete valid date, or cleared.       |
+
+### Calendar
+
+These are passed on to the calendar in the popover, and apply to typed input too.
+
+| Prop                | Type                                | Default           | Description                                                        |
+| ------------------- | ----------------------------------- | ----------------- | ------------------------------------------------------------------ |
+| `minDate`           | `BSDate`                            | BS 1979-01-01     | The first selectable (and typeable) date, inclusive.               |
+| `maxDate`           | `BSDate`                            | BS 2100-12-31     | The last selectable date, inclusive.                               |
+| `isDateDisabled`    | `(date: BSDate) => boolean`         |                   | Return `true` to disable a day, in the calendar and when typed.    |
+| `locale`            | `"en" \| "ne"`                      | `"en"`            | Language of the calendar and every label.                          |
+| `numerals`          | `"latin" \| "devanagari"`           | from `locale`     | Digits in the input text and the calendar.                         |
+| `today`             | `BSDate`                            | the device's date | The day the calendar highlights as today.                          |
+| `showGregorianDate` | `boolean`                           | `false`           | Show AD dates in the calendar.                                     |
+| `dayShape`          | `"circle" \| "rounded" \| "square"` | `"circle"`        | Shape of the calendar's day buttons.                               |
+
+### Input
+
+| Prop                                                | Type                             | Default                        | Description                                                                                     |
+| --------------------------------------------------- | -------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `iconPosition`                                      | `"end" \| "start" \| "none"`     | `"end"`                        | Where the calendar button goes. See [icon position](#icon-position).                            |
+| `clearable`                                         | `boolean`                        | `false`                        | Show a button that clears the date.                                                             |
+| `placeholder`                                       | `string`                         | `"YYYY-MM-DD"` / `"वर्ष-महिना-गते"` | The input's placeholder, per locale.                                                        |
+| `disabled`                                          | `boolean`                        | `false`                        | Disable the whole picker.                                                                       |
+| `readOnly`                                          | `boolean`                        | `false`                        | Show the value without allowing changes: the calendar button is disabled, the clear button hidden.              |
+| `required`                                          | `boolean`                        |                                | Mark the input as required, for native form validation.                                         |
+| `name`                                              | `string`                         |                                | Render a hidden input with this name for native forms. See [forms](#forms).                     |
+| `id`                                                | `string`                         |                                | `id` of the text input, for a `<label htmlFor>`.                                                |
+| `aria-label`, `aria-labelledby`, `aria-describedby` | `string`                         |                                | Accessible name and description of the input, when there's no `<label>`.                        |
+
+### Styling
+
+| Prop         | Type                             | Default | Description                                                                                                  |
+| ------------ | -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `classNames` | `Partial<DatePickerClassNames>`  |         | A class for each part: `root`, `field`, `input`, `clear`, `trigger`, `popover`, `icon`, plus `calendar` for the calendar's own parts. |
+| `components` | `Partial<DatePickerComponents>`  |         | Replace the calendar's parts, and the `TriggerIcon` and `ClearIcon`.                                         |
+| `unstyled`   | `boolean`                        | `false` | Leave out the default `nc-*` classes, on the picker and its calendar.                                        |
+| `className`  | `string`                         |         | Extra class for the root element.                                                                            |
+
+See [styling & customization](/docs/react/guides/styling).
+
+## Typing a date
+
+The input accepts `YYYY-MM-DD`, zero-padded, in Latin **or** Devanagari digits: `2083-06-15` and
+`२०८३-०६-१५` both work, whatever `numerals` is set to.
+
+- **A date is committed only when it's complete, valid and selectable.** While you type
+  `2083-06-1`, nothing happens; the moment the text becomes `2083-06-15`, `onChange` is called.
+  Partial or invalid text never produces a date.
+- **Invalid text isn't flagged while you type.** It's marked `aria-invalid` (and shown with a red
+  border by the default styles) when the input loses focus or you press Enter. `2083-02-32`, for
+  example, is invalid because Jestha 2083 has 31 days.
+- **Dates outside `minDate`/`maxDate`, or rejected by `isDateDisabled`, count as invalid.**
+- **Clearing the text calls `onChange(undefined)`.**
+- **The text follows `value`.** When `value` changes from outside, or a date is picked in the
+  calendar, the text is rewritten as `YYYY-MM-DD` in the current numeral system. If a controlled
+  parent rejects a typed date (doesn't update `value`), the text goes back to the current value.
+
+## The popover
+
+- **Opening:** click the calendar button, or press Alt+↓ in the input. Focus moves into the calendar,
+  onto the selected date or else today.
+- **Picking:** click a day or press Enter/Space on it. The popover closes and focus returns to the
+  calendar button.
+- **Closing without picking:** press Escape (focus returns to the button), click outside, or Tab
+  out of it. Focus is never trapped.
+- **Placement:** the popover opens below the field, or above it when there isn't room below, and
+  lines up with the field's right edge when it would overflow the viewport on the right.
+
+Escape inside the picker is handled there and doesn't reach your own handlers, so a picker inside a
+modal dialog closes only itself.
+
+## Icon position
+
+`iconPosition` puts the calendar button after the input (the default), before it, or nowhere:
+
+```tsx
+<NepaliDatePicker iconPosition="end" />
+<NepaliDatePicker iconPosition="start" />
+<NepaliDatePicker iconPosition="none" />
+```
+
+<ReactDemo id="icon-position" />
+
+With `"none"`, the input itself opens the calendar:
+
+- clicking the input opens it **without** moving focus, so you can keep typing;
+- ↓ in the input moves into the calendar (and opens it first if it's closed);
+- after a pick or Escape, focus returns to the input.
+
+The input then has `role="combobox"` with `aria-haspopup="dialog"`, `aria-expanded` and
+`aria-controls`, the WAI-ARIA combobox date picker pattern.
+
+## Clearing
+
+`clearable` adds a clear button after the input while there's a date. It clears the value
+(`onChange(undefined)`) and moves focus to the input. It's hidden when the picker is `disabled` or
+`readOnly`.
+
+## Forms
+
+`NepaliDatePicker` works with plain `value`/`onChange`, so it fits any form library. For a native
+`<form>`, give it a `name`: it renders a hidden input holding the date as ASCII `YYYY-MM-DD`
+(empty when there's no date), whatever the numeral system shown to the user.
+
+```tsx
+<form action="/save">
+  <NepaliDatePicker name="dob" locale="ne" defaultValue={{ year: 2083, month: 6, day: 15 }} />
+  <button type="submit">Save</button>
+</form>
+// The input shows "२०८३-०६-१५"; the form submits dob=2083-06-15.
+```
+
+On the server, `parseBsDate` from bikram-sambat-ts turns the submitted text back into a `BSDate`.
+
+<Callout>
+  **Note:** the text input itself has no `name`, so only the hidden `YYYY-MM-DD` value is submitted.
+  `required` applies to the visible input, so the browser blocks submitting an empty picker.
+</Callout>
+
+## Labels
+
+Give the input an accessible name, like any form field: a `<label htmlFor>` pointing at `id`, or
+`aria-label` / `aria-labelledby`. The calendar button is labelled "Choose date", or "Choose date,
+2083-06-15" once a date is set ("मिति छान्नुहोस्" in Nepali), and the popover is a dialog with the
+same label.
+
+## Disabled and read-only
+
+`disabled` disables the input and both buttons. `readOnly` keeps the value visible and selectable
+as text, but the calendar button is disabled and the clear button is hidden.

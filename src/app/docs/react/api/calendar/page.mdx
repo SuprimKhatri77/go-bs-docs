@@ -1,0 +1,235 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "NepaliCalendar",
+  description:
+    "NepaliCalendar, an accessible Bikram Sambat month calendar for React: controlled and uncontrolled selection, month navigation, minDate, maxDate, disabled days, Nepali labels, Gregorian dates and custom day content.",
+  path: "/docs/react/api/calendar",
+});
+
+<DocsHeader
+  title="NepaliCalendar"
+  description="An interactive Bikram Sambat month calendar, with keyboard navigation and full styling control."
+/>
+
+<ApiEntry lang="ts" signature="function NepaliCalendar(props: NepaliCalendarProps): JSX.Element">
+
+A month grid with previous/next buttons and month and year selects. Weeks run Sunday to Saturday,
+as Nepali calendars are laid out, and every value is a [`BSDate`](/docs/react/api/types#bsdate). All
+calendar math (month lengths, weekdays, navigation across years) comes from bikram-sambat-ts.
+
+</ApiEntry>
+
+```tsx
+import { useState } from "react";
+import { NepaliCalendar, type BSDate } from "bikram-sambat-react";
+
+const [date, setDate] = useState<BSDate>();
+
+<NepaliCalendar value={date} onChange={setDate} />;
+```
+
+## Props
+
+Every prop is optional.
+
+### Selection
+
+| Prop           | Type                     | Default        | Description                                                                                                   |
+| -------------- | ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `value`        | `BSDate \| undefined`    | (uncontrolled) | The selected date, controlled. Passing the prop at all, even as `undefined`, makes the selection controlled. |
+| `defaultValue` | `BSDate`                 |                | The initially selected date, when uncontrolled.                                                               |
+| `onChange`     | `(date: BSDate) => void` |                | Called when the user selects a day, including re-selecting the selected one.                                  |
+
+### Displayed month
+
+| Prop            | Type                       | Default                                  | Description                                     |
+| --------------- | -------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| `month`         | `BSMonth`                  | (uncontrolled)                           | The displayed month, controlled.                |
+| `defaultMonth`  | `BSMonth`                  | see [the displayed month](#the-displayed-month) | The initially displayed month, when uncontrolled. |
+| `onMonthChange` | `(month: BSMonth) => void` |                                          | Called when the user navigates to another month. |
+
+### Limits
+
+| Prop             | Type                        | Default                          | Description                                                                 |
+| ---------------- | --------------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `minDate`        | `BSDate`                    | BS 1979-01-01                    | The first selectable date, inclusive.                                       |
+| `maxDate`        | `BSDate`                    | BS 2100-12-31                    | The last selectable date, inclusive.                                        |
+| `isDateDisabled` | `(date: BSDate) => boolean` |                                  | Return `true` to disable a day. Disabled days can be focused but not selected. |
+
+### Display
+
+| Prop                | Type                                           | Default            | Description                                                                                  |
+| ------------------- | ---------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------- |
+| `locale`            | `"en" \| "ne"`                                 | `"en"`             | Language of month names, weekday names and every label. See [localization](/docs/react/guides/localization). |
+| `numerals`          | `"latin" \| "devanagari"`                      | from `locale`      | Digits for day numbers and years: Devanagari for `"ne"`, Latin otherwise.                    |
+| `today`             | `BSDate`                                       | the device's date  | The day highlighted as today. See [today](#today).                                           |
+| `showGregorianDate` | `boolean`                                      | `false`            | Show each day's AD date under the BS day number.                                             |
+| `dayShape`          | `"circle" \| "rounded" \| "square"`            | `"circle"`         | Shape of the day buttons (selection, today's ring, hover) with the default styles.          |
+| `fixedWeeks`        | `boolean`                                      | `true`             | Always render six week rows, so the calendar's height never changes between months.         |
+| `renderDay`         | `(date: BSDate, state: DayState) => ReactNode` |                    | Custom content inside a day button. See [custom day content](#custom-day-content).          |
+
+### Styling
+
+| Prop         | Type                           | Default | Description                                                                                    |
+| ------------ | ------------------------------ | ------- | ---------------------------------------------------------------------------------------------- |
+| `classNames` | `Partial<CalendarClassNames>`  |         | A class for each part, added to its default `nc-*` class.                                      |
+| `components` | `Partial<CalendarComponents>`  |         | Replace the navigation buttons, arrows, selects or day buttons with your own components.       |
+| `unstyled`   | `boolean`                      | `false` | Leave out the default `nc-*` classes, so the default stylesheet doesn't apply to this calendar. |
+| `className`  | `string`                       |         | Extra class for the root element (the same as `classNames.root`).                              |
+
+All four are covered in [styling & customization](/docs/react/guides/styling).
+
+### Other
+
+| Prop        | Type      | Default | Description                                               |
+| ----------- | --------- | ------- | --------------------------------------------------------- |
+| `autoFocus` | `boolean` | `false` | Move focus to the calendar's focusable day when it mounts. |
+| `id`        | `string`  |         | `id` of the root element.                                  |
+
+## Controlled and uncontrolled
+
+`NepaliCalendar` follows React's usual `value` / `defaultValue` / `onChange` contract:
+
+```tsx
+// Controlled: you own the state.
+const [date, setDate] = useState<BSDate>();
+<NepaliCalendar value={date} onChange={setDate} />;
+
+// Uncontrolled: the calendar owns it; onChange only notifies you.
+<NepaliCalendar defaultValue={{ year: 2083, month: 6, day: 15 }} onChange={(d) => console.log(d)} />;
+```
+
+- **Passing `value` at all makes it controlled**, even when it's `undefined`. So
+  `useState<BSDate>()` works as expected: `undefined` means nothing is selected, and the calendar
+  never switches between controlled and uncontrolled.
+- **A controlled calendar shows exactly `value`.** If your `onChange` doesn't update it (to reject a
+  selection, say), the selection doesn't change.
+- **`onChange` fires on every selection**, including clicking the day that's already selected. Pickers
+  use this to close their popover.
+- **Invalid dates are ignored, not thrown.** A `value`, `defaultValue`, `minDate`, `maxDate` or
+  `today` that isn't a real, supported BS date (e.g. `{ year: 2083, month: 2, day: 32 }`) is treated
+  as not given.
+
+## The displayed month
+
+Without `month` or `defaultMonth`, the calendar starts on the first of these that applies:
+
+1. the month of `value` (or `defaultValue`)
+2. the month of `today`, if you pass it
+3. the current month in Nepal (bikram-sambat-ts's `todayBs()`)
+
+The result is kept within `minDate` and `maxDate`. When an uncontrolled month's calendar gets a new
+`value` from outside, in a month it isn't showing, it moves to that month.
+
+To control the month, pass `month` and update it from `onMonthChange`. It's called for every kind of
+navigation: the buttons, the selects, and keyboard moves into another month.
+
+```tsx
+import { NepaliCalendar, type BSMonth } from "bikram-sambat-react";
+
+const [month, setMonth] = useState<BSMonth>({ year: 2083, month: 6 });
+
+<NepaliCalendar month={month} onMonthChange={setMonth} />
+<button onClick={() => setMonth({ year: 2083, month: 1 })}>Back to Baisakh</button>
+```
+
+## Limiting dates
+
+`minDate` and `maxDate` bound the selectable range; `isDateDisabled` disables any other day you
+choose. Here only Ashwin 5 to Kartik 10, 2083 can be picked, and never a Saturday:
+
+```tsx
+import { getBsDayOfWeek } from "bikram-sambat-ts";
+
+<NepaliCalendar
+  defaultMonth={{ year: 2083, month: 6 }}
+  minDate={{ year: 2083, month: 6, day: 5 }}
+  maxDate={{ year: 2083, month: 7, day: 10 }}
+  isDateDisabled={(date) => getBsDayOfWeek(date) === 6}
+/>;
+```
+
+<ReactDemo id="min-max" />
+
+- Days outside the range, or rejected by `isDateDisabled`, can't be selected. They're marked with
+  `aria-disabled` and a `data-disabled` attribute, and the default styles strike them through.
+- Keyboard navigation stops at `minDate` and `maxDate`, and the previous/next buttons, the year list
+  and the month list only offer months inside the range.
+- Disabled days inside the range can still receive keyboard focus, so screen-reader users hear
+  that they exist and are unavailable. This follows the WAI-ARIA date picker pattern.
+- Without `minDate` and `maxDate`, the range is everything bikram-sambat-ts supports: BS 1979-01-01
+  to 2100-12-31.
+
+<Callout>
+  **Tip:** keep `isDateDisabled` fast and stable. It runs for every day each time the calendar
+  renders. Define it outside the component, or wrap it in `useCallback`, if it closes over data.
+</Callout>
+
+## Today
+
+The calendar highlights today with a ring (and `aria-current="date"`). By default "today" is the
+device's local date, computed **after hydration**, so server-rendered and hydrated markup are
+identical. Calendars mounted later, like a date picker's popover, know today on their first render.
+
+Pass `today` to choose the date yourself, for example today in Nepal, whatever the device's timezone:
+
+```tsx
+import { todayBs } from "bikram-sambat-ts";
+
+<NepaliCalendar today={todayBs()} />;
+```
+
+[SSR & Next.js](/docs/react/guides/ssr) explains the details.
+
+## Gregorian dates
+
+`showGregorianDate` adds each day's AD date in small text under the BS day number. It names the AD
+month on the 1st of that month and on the 1st of the BS month, so the column stays readable. The AD
+date is also added to each day's accessible label, e.g. `Thursday, 15 Ashwin 2083 (1 October 2026
+AD)`, and the calendar keeps exactly the same size with or without it.
+
+```tsx
+<NepaliCalendar showGregorianDate defaultValue={{ year: 2083, month: 6, day: 15 }} />
+<NepaliCalendar showGregorianDate locale="ne" defaultValue={{ year: 2083, month: 6, day: 15 }} />
+```
+
+<ReactDemo id="gregorian" />
+
+## Custom day content
+
+`renderDay` replaces what's inside a day button. The button itself, its label, its state attributes
+and its keyboard behavior stay the calendar's, so accessibility is unaffected.
+
+```tsx
+import { formatBsDate } from "bikram-sambat-ts";
+
+// Example data: bikram-sambat-react doesn't ship holidays or events.
+const events = new Set(["2083-06-03", "2083-06-11"]);
+
+<NepaliCalendar
+  renderDay={(date, state) => (
+    <>
+      {date.day}
+      {events.has(formatBsDate(date)) && !state.selected && <span className="event-dot" />}
+    </>
+  )}
+/>;
+```
+
+The second argument is the day's [`DayState`](/docs/react/api/types#daystate): `selected`,
+`today`, `disabled` and `focused`. To change the button element itself, replace the `DayButton`
+[component](/docs/react/guides/styling#replacing-parts) instead.
+
+## Layout
+
+`fixedWeeks` (on by default) renders six week rows for every month, padding with empty rows, so the
+calendar never changes height as you navigate. It matters most inside a popover, which would
+otherwise jump. Ashwin 2083 needs five rows, for example; with `fixedWeeks={false}` it renders
+exactly those five.
+
+`dayShape` switches the day buttons between circles (the default), rounded squares and squares:
+
+<ReactDemo id="shapes" />

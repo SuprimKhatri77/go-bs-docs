@@ -18,7 +18,11 @@ export function TableOfContents() {
     const article = document.querySelector("article");
     if (!article) return;
 
-    const elements = Array.from(article.querySelectorAll<HTMLHeadingElement>("h2, h3"));
+    // Headings inside live demos (e.g. a calendar's visually hidden month
+    // title) belong to the demo, not to the page's outline.
+    const elements = Array.from(article.querySelectorAll<HTMLHeadingElement>("h2, h3")).filter(
+      (el) => !el.closest(".not-prose"),
+    );
     // The heading list only exists once MDX content has rendered into the
     // DOM (there's no React state it's derived from) and is static per
     // page, so a one-time post-mount read is the actual external system

@@ -1,0 +1,259 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "Styling & customization",
+  description:
+    "Style bikram-sambat-react's Nepali calendar and date picker any way you like: CSS variables, dark mode, per-part classNames with Tailwind, an unstyled mode, state data attributes and replaceable components.",
+  path: "/docs/react/guides/styling",
+});
+
+<DocsHeader
+  title="Styling & customization"
+  description="Nothing about the look is locked in: tweak the defaults, add your own classes, or replace parts entirely."
+/>
+
+There are four levels of control, and you can mix them:
+
+1. **Use the default stylesheet** and adjust it with [CSS variables](#css-variables).
+2. **Add your own classes** to any part with [`classNames`](#classnames): Tailwind, CSS modules or
+   plain CSS.
+3. **Go [unstyled](#unstyled)**: skip the stylesheet, or pass `unstyled` to one component.
+4. **[Replace parts](#replacing-parts)**, like the day buttons or the month and year selects, with
+   your own components.
+
+At every level the behavior stays the package's: keyboard navigation, focus management, labels and
+ARIA states keep working.
+
+## The default stylesheet
+
+```tsx
+import "bikram-sambat-react/styles.css";
+```
+
+Import it once, anywhere (an app entry file or root layout is typical). Every rule is scoped to the
+package's `nc-*` classes, so it can't affect the rest of your app. Without it the components render
+as plain, accessible markup.
+
+## CSS variables
+
+The default stylesheet reads its colors and sizes from CSS variables on `.nc-calendar` and
+`.nc-date-picker`. Override any of them there, or on an ancestor:
+
+```css
+.nc-calendar,
+.nc-date-picker {
+  --nc-primary: #1d4ed8; /* selected day, today's ring, Saturdays */
+  --nc-radius: 0.75rem;
+  --nc-cell-size: 2.25rem;
+  --nc-font: "Mukta", system-ui, sans-serif;
+}
+```
+
+| Variable                  | Used for                                            | Light default | Dark default |
+| ------------------------- | --------------------------------------------------- | ------------- | ------------ |
+| `--nc-background`         | calendar and field background                       | `#ffffff`     | `#1c1917`    |
+| `--nc-foreground`         | text                                                | `#1c1917`     | `#f5f5f4`    |
+| `--nc-muted`              | disabled field background                           | `#f5f5f4`     | `#292524`    |
+| `--nc-muted-foreground`   | weekday names, AD dates, icons, placeholder         | `#78716c`     | `#a8a29e`    |
+| `--nc-border`             | borders                                             | `#e7e5e4`     | `#3a3533`    |
+| `--nc-primary`            | selected day, today's ring, Saturdays, invalid input | `#b91c1c`    | `#f87171`    |
+| `--nc-primary-foreground` | text on the selected day                            | `#ffffff`     | `#1c1917`    |
+| `--nc-hover`              | hover background                                    | `#f5f5f4`     | `#292524`    |
+| `--nc-focus`              | focus outline, focused field border                 | `#2563eb`     | `#60a5fa`    |
+| `--nc-disabled`           | disabled days and buttons                           | `#a8a29e`     | `#6b6461`    |
+| `--nc-radius`             | corners of the calendar, field and buttons          | `0.5rem`      |              |
+| `--nc-day-radius`         | corners of the day buttons (`dayShape="circle"`)    | `50%`         |              |
+| `--nc-shadow`             | the popover's shadow                                | a soft shadow | a deeper one |
+| `--nc-cell-size`          | width and height of each day cell                   | `2.5rem`      |              |
+| `--nc-font`               | font family                                         | `inherit`     |              |
+
+Saturday, the weekly holiday in Nepal, is shown in `--nc-primary`, like on Nepali wall calendars.
+
+## Dark mode
+
+The dark palette applies inside any element with the `dark` class or `data-theme="dark"`, which
+covers Tailwind, next-themes and most docs sites, or to a component given `className="nc-dark"`.
+It doesn't follow `prefers-color-scheme` on its own, so it never turns dark on a light page. The
+demos on this site switch with the site's theme toggle.
+
+To follow the operating system instead, copy the dark values from the table above into a
+`@media (prefers-color-scheme: dark)` block.
+
+## Day shape
+
+`dayShape` switches the day buttons between `"circle"` (the default), `"rounded"` and `"square"`.
+The shape covers the selection, today's ring and the hover highlight. For any other shape, keep
+`"circle"` and set `--nc-day-radius`, e.g. `0.75rem` for softer corners. See the
+[demo](/docs/react/api/calendar#layout).
+
+## classNames
+
+Pass a class for any part of the calendar. Each is added after the part's default `nc-*` class, so
+it can extend the default styles, or, together with `unstyled`, replace them. The `selected`,
+`today`, `disabled` and `focused` keys are added to day buttons only while they're in that state.
+
+Here's a calendar styled entirely with Tailwind, with the default classes turned off and custom
+arrows:
+
+```tsx
+import { NepaliCalendar, type ChevronProps } from "bikram-sambat-react";
+
+function ArrowChevron({ direction }: ChevronProps) {
+  return <span aria-hidden="true">{direction === "previous" ? "←" : "→"}</span>;
+}
+
+<NepaliCalendar
+  unstyled
+  components={{ Chevron: ArrowChevron }}
+  classNames={{
+    root: "inline-block rounded-2xl border border-border bg-background p-4 shadow-sm",
+    header: "mb-3 flex items-center justify-between gap-2",
+    nav: "grid size-8 place-items-center rounded-full border border-border text-muted hover:text-foreground disabled:opacity-30",
+    selects: "flex gap-1",
+    select: "rounded-md bg-transparent px-1 py-1 text-sm font-semibold text-foreground [&>option]:bg-background",
+    weekday: "size-10 text-[11px] font-medium uppercase tracking-wide text-faint [&_abbr]:no-underline",
+    cell: "p-0.5 text-center",
+    day: "size-9 rounded-full text-sm text-foreground tabular-nums outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent [&:not([data-selected])]:hover:bg-surface-hover",
+    selected: "bg-accent font-semibold text-accent-foreground",
+    today: "underline decoration-2 underline-offset-4 decoration-accent",
+    disabled: "text-faint line-through",
+  }}
+/>;
+```
+
+<ReactDemo id="tailwind" />
+
+The colors (`bg-background`, `text-accent`, …) are this site's Tailwind theme; use your own. The
+date picker takes `classNames` for its parts (`root`, `field`, `input`, `clear`, `trigger`,
+`popover`, `icon`), plus a `calendar` key for the calendar in its popover:
+
+```tsx
+<NepaliDatePicker
+  classNames={{
+    field: "rounded-full",
+    input: "font-mono",
+    calendar: { selected: "bg-indigo-600 text-white" },
+  }}
+/>
+```
+
+Every key is listed in the [class names reference](/docs/react/api/types#class-names).
+
+## State attributes
+
+Every component also exposes its state as data attributes. They stay in place with `unstyled`, so
+you can target them from CSS, or with Tailwind's `data-*` variants instead of the state keys of
+`classNames`:
+
+| Element     | Attributes                                                                                           |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| calendar    | `data-day-shape`, `data-numerals`, `data-gregorian` (with `showGregorianDate`)                       |
+| day button  | `data-selected`, `data-today`, `data-disabled`, `data-focused`, `data-date="YYYY-MM-DD"`             |
+| empty cell  | `data-empty`                                                                                         |
+| date picker | `data-open`, `data-disabled`, `data-icon-position`                                                   |
+| popover     | `data-side="bottom" \| "top"`, `data-align="start" \| "end"`                                         |
+
+```css
+.nc-calendar-day[data-selected] {
+  border-radius: 0.375rem;
+}
+.nc-calendar-day[data-date="2083-06-15"] {
+  font-style: italic;
+}
+```
+
+```tsx
+<NepaliCalendar classNames={{ day: "data-[selected]:bg-blue-600 data-[today]:underline" }} />
+```
+
+## Unstyled
+
+- **Skip the stylesheet** and nothing is styled: you get plain markup, with all the behavior and
+  accessibility, to style however you like.
+- **Pass `unstyled`** to leave the `nc-*` classes off one component, so the default stylesheet
+  doesn't reach it even when your app loads it for other calendars. Your `classNames` and the data
+  attributes still apply. On `NepaliDatePicker`, `unstyled` covers its calendar too.
+
+The month title, which only screen readers should hear, stays visually hidden without any
+stylesheet. Everything else is up to you, including the date picker popover's position (the
+default stylesheet places it absolutely, below the field).
+
+## Replacing parts
+
+`components` swaps parts for your own components. The package passes each one the props that make
+it work (labels, `disabled`, handlers, `tabIndex`, `data-date`, …); spread them onto your element.
+
+| Component     | Replaces                        | Receives                                                                          |
+| ------------- | ------------------------------- | --------------------------------------------------------------------------------- |
+| `NavButton`   | the previous/next month buttons | `direction` and button attributes; `children` is the `Chevron`                     |
+| `Chevron`     | the arrows inside them          | `direction`, `className`                                                           |
+| `Select`      | the month and year selects      | `kind`, `value`, `options` (`{ value, label, disabled }[]`), `onChange`, `aria-label`, `className` |
+| `DayButton`   | each day's button               | `date`, `state`, button attributes and `children`                                  |
+| `TriggerIcon` | the date picker's calendar icon | `className`                                                                        |
+| `ClearIcon`   | the date picker's clear icon    | `className`                                                                        |
+
+For example, a `DayButton` that adds a dot under days with events:
+
+```tsx
+import { formatBsDate } from "bikram-sambat-ts";
+import { NepaliCalendar, type DayButtonProps } from "bikram-sambat-react";
+
+// Example data: bikram-sambat-react doesn't ship holidays or events.
+const EVENTS = new Set(["2083-06-03", "2083-06-11", "2083-06-18", "2083-06-26"]);
+
+function EventDayButton({ date, state, children, ...props }: DayButtonProps) {
+  const hasEvent = EVENTS.has(formatBsDate(date));
+  return (
+    <button type="button" {...props}>
+      {children}
+      {hasEvent && (
+        <span
+          aria-hidden="true"
+          className={
+            "absolute bottom-1 left-1/2 size-1 -translate-x-1/2 rounded-full " +
+            (state.selected ? "bg-current" : "bg-accent")
+          }
+        />
+      )}
+    </button>
+  );
+}
+
+<NepaliCalendar components={{ DayButton: EventDayButton }} />;
+```
+
+<ReactDemo id="day-button" />
+
+And a `Select` can be any control, like your design system's dropdown:
+
+```tsx
+import type { SelectProps } from "bikram-sambat-react";
+
+function MySelect({ kind, value, options, onChange, className, ...rest }: SelectProps) {
+  return (
+    <MyDropdown
+      aria-label={rest["aria-label"]}
+      className={className}
+      value={value}
+      onValueChange={onChange}
+    >
+      {options.map((option) => (
+        <MyDropdown.Option key={option.value} value={option.value} disabled={option.disabled}>
+          {option.label}
+        </MyDropdown.Option>
+      ))}
+    </MyDropdown>
+  );
+}
+```
+
+<Callout tone="warn">
+  **Define custom parts outside your component** (or memoize them). A component defined inline
+  during render is a new component every render, so React remounts it each time, which loses focus
+  mid-navigation.
+</Callout>
+
+For only the *content* of a day, [`renderDay`](/docs/react/api/calendar#custom-day-content) is
+simpler than a `DayButton`.

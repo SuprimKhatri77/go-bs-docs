@@ -1,0 +1,47 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Supported range",
+  description:
+    "Where bikram-sambat-react's calendar data comes from (bikram-sambat-ts, identical to go-bs), and how the components handle the supported range of BS 1979–2100.",
+  path: "/docs/react/data-verification",
+});
+
+<DocsHeader
+  title="Supported range"
+  description="The components contain no calendar data: every date comes from bikram-sambat-ts."
+/>
+
+## Where the dates come from
+
+bikram-sambat-react has no calendar table of its own. Month lengths, the weekday each month starts
+on, moving between months and years, and the names and formatting of dates all come from
+[bikram-sambat-ts](/docs/ts/getting-started), its only runtime dependency. bikram-sambat-ts's data
+is exported from go-bs and checked against it for every supported day; see
+[its calendar data page](/docs/ts/data-verification) for the sources and how they're verified,
+including the known issues.
+
+So a calendar's grid is always exactly what bikram-sambat-ts computes: in Ashwin 2083, day 1 falls on
+a Thursday and the month has 31 days. When bikram-sambat-ts updates its data, the components follow,
+with no change to bikram-sambat-react.
+
+## The supported range
+
+The components support the same range as bikram-sambat-ts:
+
+|                | From                   | To                     |
+| -------------- | ---------------------- | ---------------------- |
+| Bikram Sambat  | 1979-01-01 (Baisakh 1) | 2100-12-31 (Chaitra 31) |
+| Gregorian (AD) | 1922-04-13             | 2044-04-13             |
+
+At the edges:
+
+- The year select offers exactly 1979 to 2100, and the previous/next buttons are disabled at
+  Baisakh 1979 and Chaitra 2100.
+- Keyboard navigation stops at the first and last supported day.
+- A `value`, `defaultValue`, `minDate`, `maxDate` or `today` outside the range (or otherwise not a
+  real BS date) is ignored rather than throwing, so a bad value can't crash your page.
+- If the device's clock is outside the range, nothing is highlighted as today.
+
+`minDate` and `maxDate` narrow the range further. They can't widen it.

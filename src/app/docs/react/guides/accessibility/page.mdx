@@ -1,0 +1,110 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Accessibility & keyboard",
+  description:
+    "How bikram-sambat-react's Nepali calendar and date picker work with a keyboard and screen readers: WAI-ARIA grid and dialog patterns, roving tabindex, labels, focus management and the combobox mode.",
+  path: "/docs/react/guides/accessibility",
+});
+
+<DocsHeader
+  title="Accessibility & keyboard"
+  description="Both components work fully from the keyboard and with screen readers, following the WAI-ARIA date picker pattern."
+/>
+
+## Keyboard
+
+In the calendar grid:
+
+| Key                         | Action                                                              |
+| --------------------------- | ------------------------------------------------------------------- |
+| ← / →                       | previous / next day                                                 |
+| ↑ / ↓                       | previous / next week                                                |
+| Home / End                  | first / last day of the week (Sunday / Saturday)                    |
+| PageUp / PageDown           | previous / next month, keeping the day (clamped: Ashwin 31 → Kartik 30) |
+| Shift+PageUp / Shift+PageDown | previous / next year                                              |
+| Enter / Space               | select the focused day                                              |
+
+In the date picker:
+
+| Key                  | Action                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Alt+↓ in the input   | open the calendar and move focus into it                                               |
+| ↓ in the input       | with the calendar open, move focus into it (with `iconPosition="none"`, also opens it)  |
+| Enter in the input   | check the typed text, marking it invalid if it isn't a selectable date                  |
+| Escape               | close the calendar, returning focus to the calendar button (or the input)              |
+| Tab                  | move on as usual; leaving the popover closes it                                         |
+
+Moving past the edge of the month shows the next or previous month. Movement never goes outside
+`minDate`/`maxDate`, or outside BS 1979–2100.
+
+## Structure and labels
+
+- The month is a `<table role="grid">` labelled by the month and year (e.g. "Ashwin 2083"), with a
+  column header per weekday. Each header shows the short name and carries the full name:
+  `<abbr title="Sunday">Sun</abbr>`.
+- Each day is a `<button>` inside a `role="gridcell"`, labelled with its full date: "Thursday, 15
+  Ashwin 2083", or "२०८३ असोज १५, बिहिवार" in Nepali. With `showGregorianDate`, the AD date is added
+  to the label.
+- The selected day's cell has `aria-selected="true"`. Today's button has `aria-current="date"`.
+  Disabled days have `aria-disabled="true"`.
+- The month title is a visually hidden heading with `aria-live="polite"`, so moving to another month
+  is announced.
+- The previous/next buttons and the month and year selects have text labels ("Previous month",
+  "Month", …) in the calendar's locale.
+- The root element's `lang` matches the locale, so screen readers switch to Nepali pronunciation.
+
+## Focus
+
+- **Roving tabindex.** Only one day is in the tab order, so Tab moves past the grid in one step.
+  That day is the one you last moved to; otherwise the selected day, then today, then the first
+  selectable day of the month.
+- **Focus follows the keyboard.** Arrow keys move DOM focus to the new day, switching months when
+  needed.
+- **Disabled days can be focused but not selected**, so screen-reader users can hear that they
+  exist. Moving onto one and pressing Enter does nothing.
+- **`autoFocus`** on `NepaliCalendar` moves focus to that day when the calendar mounts. The date
+  picker uses this when its popover opens.
+
+## The date picker's popover
+
+The popover is a **non-modal** `role="dialog"`, labelled "Choose date":
+
+- The calendar button has `aria-haspopup="dialog"`, `aria-expanded`, and `aria-controls` pointing
+  at the open popover.
+- Opening it moves focus into the calendar. Picking a date, or pressing Escape, closes it and
+  returns focus to the button.
+- Tabbing out, or clicking outside, closes it. Focus is never trapped.
+- With `iconPosition="none"`, the input itself is a `role="combobox"` with the same
+  `aria-haspopup`, `aria-expanded` and `aria-controls` (the WAI-ARIA combobox date picker pattern).
+  Clicking it opens the calendar while you keep typing, and focus returns to it afterwards.
+
+## Typed input
+
+A typed date that's invalid, unsupported or disabled is marked `aria-invalid="true"`, but only once
+the input loses focus or you press Enter, never while typing. Nothing is committed until the text is
+a complete, selectable date. Connect your own error message with `aria-describedby`:
+
+```tsx
+<label htmlFor="due">Due date</label>
+<NepaliDatePicker id="due" aria-describedby="due-hint" />
+<p id="due-hint">Format: YYYY-MM-DD, e.g. 2083-06-15</p>
+```
+
+## Not by color alone
+
+With the default styles, every state has a cue besides color: the selected day is filled and bold,
+today has a ring (and a dot when there's room), disabled days are struck through, and focus has a
+visible outline. Keep a non-color cue if you restyle the states.
+
+## Testing
+
+The package's test suite runs axe-core on the calendar, the open date picker and the combobox mode,
+and tests every key above, with real bikram-sambat-ts dates. Custom parts (`components`) keep
+working as long as they spread the props they're given.
+
+<Callout>
+  Automated checks catch a lot, but not everything. If you rely on these components for an important
+  form, try it with a screen reader (VoiceOver, NVDA or TalkBack) as part of your own testing.
+</Callout>

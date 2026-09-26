@@ -7,6 +7,8 @@ export const dynamic = "force-static";
 const IMPORTS: Record<string, string> = {
   go: "Import path: `github.com/suprimkhatri77/go-bs` (package `bs`).",
   ts: "npm package: `bikram-sambat-ts` (ESM and CommonJS, zero dependencies).",
+  react:
+    "npm package: `bikram-sambat-react` (ESM, React 18 and 19 as peer dependencies). React components built on `bikram-sambat-ts`, which provides all of their calendar data and date math.",
 };
 
 /** The llms.txt index (https://llmstxt.org): each docs page's Markdown URL, per language. */
@@ -26,8 +28,9 @@ export function GET() {
 
 > ${SITE_DESCRIPTION}
 
-The same Bikram Sambat calendar library in ${LANGUAGES.map((l) => l.name).join(" and ")}, with identical
-calendar data and results. Every page below is also available as one file at ${SITE_URL}/llms-full.txt.
+The same Bikram Sambat calendar library in Go and TypeScript, with identical calendar data and results,
+plus React calendar and date picker components built on the TypeScript library. Every page below is
+also available as one file at ${SITE_URL}/llms-full.txt.
 
 ${languages}
 `;

@@ -5,7 +5,7 @@ export const SITE_URL = "https://go-bs.suprimkhatri.com.np";
 export const SITE_NAME = "go-bs";
 export const SITE_TITLE = "go-bs — Bikram Sambat date conversion for Go and TypeScript";
 export const SITE_DESCRIPTION =
-  "Dependency-free Go and TypeScript libraries for converting dates between Gregorian (AD) and Bikram Sambat (BS), Nepal's calendar. Supports BS 1979–2100 with verified calendar data, identical in both languages.";
+  "Dependency-free Go and TypeScript libraries for converting dates between Gregorian (AD) and Bikram Sambat (BS), Nepal's calendar, plus accessible React calendar and date picker components. Supports BS 1979–2100 with verified calendar data, identical in every package.";
 export const GITHUB_URL = "https://github.com/suprimkhatri77/go-bs";
 export const PKG_GO_DEV_URL = "https://pkg.go.dev/github.com/suprimkhatri77/go-bs";
 export const AUTHOR = { name: "Suprim Khatri", url: "https://github.com/suprimkhatri77" };

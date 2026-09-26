@@ -5,11 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LANGUAGES, languageFromPath, type LanguageId } from "@/lib/languages";
 import { counterpartHref } from "@/lib/nav";
-import { GoIcon, TypeScriptIcon } from "./BrandIcons";
+import { GoIcon, ReactIcon, TypeScriptIcon } from "./BrandIcons";
 
 const LOGOS: Record<LanguageId, (p: { className?: string }) => React.ReactElement> = {
   go: GoIcon,
   ts: TypeScriptIcon,
+  react: ReactIcon,
 };
 
 /** The language's logo in its brand colour. */

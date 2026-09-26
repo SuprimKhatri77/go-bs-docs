@@ -140,6 +140,81 @@ const NAV: Record<LanguageId, SectionDef[]> = {
       ],
     },
   ],
+  react: [
+    {
+      title: "Introduction",
+      items: [
+        {
+          title: "Getting started",
+          slug: "getting-started",
+          description: "Install bikram-sambat-react and render your first Bikram Sambat calendar and date picker.",
+        },
+      ],
+    },
+    {
+      title: "API reference",
+      items: [
+        {
+          title: "NepaliCalendar",
+          slug: "api/calendar",
+          description:
+            "The month calendar: value, defaultValue, onChange, month, minDate, maxDate, isDateDisabled, today, showGregorianDate, dayShape, fixedWeeks, renderDay.",
+        },
+        {
+          title: "NepaliDatePicker",
+          slug: "api/date-picker",
+          description:
+            "Text input with a calendar popover: typed input, iconPosition, clearable, forms (name), disabled, readOnly.",
+        },
+        {
+          title: "Types",
+          slug: "api/types",
+          description:
+            "BSDate, BSMonth, CalendarLocale, Numerals, DayShape, DayState, class-name maps and component prop types.",
+        },
+      ],
+    },
+    {
+      title: "Guides",
+      items: [
+        {
+          title: "Styling & customization",
+          slug: "guides/styling",
+          description: "CSS variables, dark mode, classNames, Tailwind, unstyled mode and replaceable parts.",
+        },
+        {
+          title: "Localization",
+          slug: "guides/localization",
+          description: "English or Nepali labels, Latin or Devanagari digits, and Gregorian dates.",
+        },
+        {
+          title: "Accessibility & keyboard",
+          slug: "guides/accessibility",
+          description: "Keyboard navigation, ARIA roles and labels, focus management and the combobox mode.",
+        },
+        {
+          title: "SSR & Next.js",
+          slug: "guides/ssr",
+          description: "Server rendering, hydration, today's date, and the Next.js App Router.",
+        },
+        {
+          title: "Building your own picker",
+          slug: "guides/custom-picker",
+          description: "Compose NepaliCalendar with your own trigger, popover and input.",
+        },
+      ],
+    },
+    {
+      title: "Calendar data",
+      items: [
+        {
+          title: "Supported range",
+          slug: "data-verification",
+          description: "Where the calendar data comes from (bikram-sambat-ts) and the supported BS 1979–2100 range.",
+        },
+      ],
+    },
+  ],
 };
 
 /** The sidebar for a language. */

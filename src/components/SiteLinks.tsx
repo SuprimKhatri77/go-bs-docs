@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { docsHref, languageFromPath } from "@/lib/languages";
+import { docsNavFor } from "@/lib/nav";
 
 /** The header's section links, for the language currently being viewed. */
 export function useSectionLinks() {
   const language = languageFromPath(usePathname());
+  // Each language's API reference starts at a different page (conversion
+  // for the libraries, the calendar component for React).
+  const apiReference = docsNavFor(language).find((section) => section.title === "API reference")?.items[0];
   return [
     { href: docsHref(language, "getting-started"), label: "Docs" },
-    { href: docsHref(language, "api/conversion"), label: "API reference" },
+    { href: apiReference?.href ?? docsHref(language, "getting-started"), label: "API reference" },
     { href: docsHref(language, "data-verification"), label: "Calendar data" },
   ];
 }

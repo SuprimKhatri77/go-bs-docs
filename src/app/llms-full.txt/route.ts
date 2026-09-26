@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 
 /**
  * Every docs page's Markdown in sidebar order, for loading the whole docs
- * into context at once: all Go pages, then all TypeScript pages.
+ * into context at once: all Go pages, then TypeScript, then React.
  */
 export async function GET() {
   const pages = await Promise.all(
