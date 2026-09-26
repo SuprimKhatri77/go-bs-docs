@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { HighlighterCore } from "shiki/core";
 import { getBsDayOfWeek, type BSDate } from "bikram-sambat-ts";
 import {
   NepaliCalendar,
@@ -261,15 +262,67 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function CodeBlock({ title, code }: { title: string; code: string }) {
+// Syntax highlighting, loaded in the browser on first use: Shiki's core with
+// just TSX, CSS and the site's two themes, and the JavaScript regex engine
+// (no WebAssembly). Colors come from the same --shiki-light/--shiki-dark
+// variables the rest of the site's code uses (.shiki-html in globals.css).
+let highlighter: Promise<HighlighterCore> | undefined;
+
+function getHighlighter(): Promise<HighlighterCore> {
+  highlighter ??= Promise.all([import("shiki/core"), import("shiki/engine/javascript")]).then(
+    ([{ createHighlighterCore }, { createJavaScriptRegexEngine }]) =>
+      createHighlighterCore({
+        themes: [import("shiki/dist/themes/github-light.mjs"), import("shiki/dist/themes/github-dark.mjs")],
+        langs: [import("shiki/dist/langs/tsx.mjs"), import("shiki/dist/langs/css.mjs")],
+        engine: createJavaScriptRegexEngine(),
+      }),
+  );
+  return highlighter;
+}
+
+function useHighlighted(code: string, lang: "tsx" | "css"): string | undefined {
+  const [result, setResult] = useState<{ code: string; html: string }>();
+  useEffect(() => {
+    let cancelled = false;
+    getHighlighter()
+      .then((h) => {
+        const html = h.codeToHtml(code, {
+          lang,
+          themes: { light: "github-light", dark: "github-dark" },
+          defaultColor: false,
+        });
+        if (!cancelled) setResult({ code, html });
+      })
+      .catch(() => {
+        // Highlighting is an enhancement; the plain code stays readable.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [code, lang]);
+  // Only use the highlighted version of the current code, never a stale one.
+  return result?.code === code ? result.html : undefined;
+}
+
+function CodeBlock({ title, code, lang }: { title: string; code: string; lang: "tsx" | "css" }) {
+  const html = useHighlighted(code, lang);
+  const box =
+    "overflow-x-auto rounded-b-lg border border-border bg-[var(--code-bg)] p-3 font-mono text-[12.5px] leading-relaxed text-foreground";
   return (
     <div className="group relative mt-3">
       <div className="rounded-t-lg border border-b-0 border-border bg-surface px-3 py-1.5 font-mono text-[11px] text-muted">
         {title}
       </div>
-      <pre className="overflow-x-auto rounded-b-lg border border-border bg-[var(--code-bg)] p-3 font-mono text-[12.5px] leading-relaxed text-foreground">
-        <code>{code}</code>
-      </pre>
+      {html ? (
+        <div
+          className={`shiki-html ${box} [&_pre]:!bg-transparent [&_pre]:font-mono`}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <pre className={box}>
+          <code>{code}</code>
+        </pre>
+      )}
       <CopyButton getText={() => code} />
     </div>
   );
@@ -293,6 +346,7 @@ export function ReactPlayground() {
     isDateDisabled: settings.disableSaturdays ? saturday : undefined,
   };
   const css = generatedCss(settings);
+  const dark = settings.theme === "dark";
 
   return (
     <div className="not-prose my-6 rounded-xl border border-border bg-surface">
@@ -301,171 +355,169 @@ export function ReactPlayground() {
         <span className="font-mono">bikram-sambat-react@{pkg.version}</span>
       </div>
 
-      <div className="grid md:grid-cols-[1fr_16rem]">
+      {/* Preview, full width: the calendar grows with the cell size, and the
+          picker's popover needs room below and to the right of the field. */}
+      <style>{previewCss(settings)}</style>
+      <div className={"border-b border-border-soft " + (dark ? "bg-[#0c0a09]" : "bg-[#fafaf9]")}>
         <div
           className={
-            "border-b border-border-soft md:border-r md:border-b-0 " +
-            (settings.theme === "dark" ? "bg-[#0c0a09]" : "bg-[#fafaf9]")
+            "nc-playground-preview flex items-start justify-center p-5 " +
+            // The picker needs room for its popover (at the largest cell size, too).
+            // Scrolling would clip that popover, so only the calendar may scroll
+            // (on narrow screens with a large cell size).
+            (isPicker ? "min-h-[32rem]" : "min-h-[27rem] overflow-x-auto")
           }
         >
-          <style>{previewCss(settings)}</style>
-          {/* Sticky, so the preview stays in view while scrolling the controls. */}
-          <div className="md:sticky md:top-16">
-            <div
-              className={
-                "nc-playground-preview flex min-h-[26rem] items-start p-4 " +
-                // The picker's popover opens from the field's left edge, so keep it left-aligned.
-                (isPicker ? "justify-start" : "justify-center")
-              }
-            >
-              {isPicker ? (
-                <NepaliDatePicker
-                  {...shared}
-                  aria-label="Date"
-                  value={date}
-                  onChange={setDate}
-                  iconPosition={settings.iconPosition}
-                  clearable={settings.clearable}
-                  disabled={settings.disabled}
-                  readOnly={settings.readOnly}
-                />
-              ) : (
-                <NepaliCalendar {...shared} value={date} onChange={setDate} fixedWeeks={settings.fixedWeeks} />
-              )}
+          {isPicker ? (
+            // The popover opens from the field's left edge; leave room for it.
+            <div className="w-full max-w-[26rem]">
+              <NepaliDatePicker
+                {...shared}
+                aria-label="Date"
+                value={date}
+                onChange={setDate}
+                iconPosition={settings.iconPosition}
+                clearable={settings.clearable}
+                disabled={settings.disabled}
+                readOnly={settings.readOnly}
+              />
             </div>
-            <div
-              className={
-                "border-t px-4 py-2 font-mono text-xs " +
-                (settings.theme === "dark" ? "border-[#292524] text-[#a8a29e]" : "border-[#e7e5e4] text-[#78716c]")
-              }
-            >
-              value = {date ? dateLiteral(date) : "undefined"}
-            </div>
-          </div>
+          ) : (
+            <NepaliCalendar {...shared} value={date} onChange={setDate} fixedWeeks={settings.fixedWeeks} />
+          )}
         </div>
-
-        <div className="space-y-3 p-4">
-          <Group title="Component">
-            <Select
-              label="component"
-              value={settings.component}
-              options={["calendar", "picker"] as const}
-              onChange={(v) => set("component", v)}
-            />
-          </Group>
-
-          <Group title="Props">
-            <Select label="locale" value={settings.locale} options={["en", "ne"] as const} onChange={(v) => set("locale", v)} />
-            <Select
-              label="numerals"
-              value={settings.numerals}
-              options={["auto", "latin", "devanagari"] as const}
-              onChange={(v) => set("numerals", v)}
-            />
-            <Select
-              label="dayShape"
-              value={settings.dayShape}
-              options={["circle", "rounded", "square"] as const}
-              onChange={(v) => set("dayShape", v)}
-            />
-            <Toggle label="showGregorianDate" checked={settings.showGregorianDate} onChange={(v) => set("showGregorianDate", v)} />
-            {!isPicker && (
-              <Toggle label="fixedWeeks" checked={settings.fixedWeeks} onChange={(v) => set("fixedWeeks", v)} />
-            )}
-            <Toggle label="disable Saturdays" checked={settings.disableSaturdays} onChange={(v) => set("disableSaturdays", v)} />
-            <div className="space-y-1.5">
-              <span className={controlLabel}>minDate / maxDate</span>
-              <div className="grid gap-2">
-                <NepaliDatePicker
-                  aria-label="minDate"
-                  placeholder="minDate"
-                  iconPosition="none"
-                  clearable
-                  value={settings.minDate}
-                  onChange={(v) => set("minDate", v)}
-                  className="w-full"
-                />
-                <NepaliDatePicker
-                  aria-label="maxDate"
-                  placeholder="maxDate"
-                  iconPosition="none"
-                  clearable
-                  value={settings.maxDate}
-                  onChange={(v) => set("maxDate", v)}
-                  className="w-full"
-                />
-              </div>
-            </div>
-            {isPicker && (
-              <>
-                <Select
-                  label="iconPosition"
-                  value={settings.iconPosition}
-                  options={["end", "start", "none"] as const}
-                  onChange={(v) => set("iconPosition", v)}
-                />
-                <Toggle label="clearable" checked={settings.clearable} onChange={(v) => set("clearable", v)} />
-                <Toggle label="disabled" checked={settings.disabled} onChange={(v) => set("disabled", v)} />
-                <Toggle label="readOnly" checked={settings.readOnly} onChange={(v) => set("readOnly", v)} />
-              </>
-            )}
-          </Group>
-
-          <Group title="Style">
-            <Select label="theme" value={settings.theme} options={["light", "dark"] as const} onChange={(v) => set("theme", v)} />
-            {COLORS.map((color) => (
-              <label key={color.name} className="flex items-center justify-between gap-3">
-                <span className={controlLabel}>{color.label}</span>
-                <span className="flex items-center gap-2">
-                  <code className="font-mono text-[10px] text-faint">{colorValue(settings, color)}</code>
-                  <input
-                    type="color"
-                    aria-label={`${color.label} (${color.name})`}
-                    className="h-6 w-8 cursor-pointer rounded border border-border bg-transparent"
-                    value={colorValue(settings, color)}
-                    onChange={(e) =>
-                      set("colors", { ...settings.colors, [`${settings.theme}:${color.name}`]: e.target.value })
-                    }
-                  />
-                </span>
-              </label>
-            ))}
-            {SIZES.map((size) => (
-              <label key={size.name} className="block space-y-1">
-                <span className="flex justify-between">
-                  <span className={controlLabel}>{size.label}</span>
-                  <code className="font-mono text-[10px] text-faint">{sizeValue(settings, size)}rem</code>
-                </span>
-                <input
-                  type="range"
-                  className="w-full accent-[var(--accent)]"
-                  min={size.min}
-                  max={size.max}
-                  step={size.step}
-                  value={sizeValue(settings, size)}
-                  onChange={(e) => set("sizes", { ...settings.sizes, [size.name]: Number(e.target.value) })}
-                />
-              </label>
-            ))}
-            <Select label="font" value={settings.font} options={["inherit", "serif", "mono"] as const} onChange={(v) => set("font", v)} />
-          </Group>
-
-          <button
-            type="button"
-            onClick={() => {
-              setSettings(DEFAULTS);
-              setDate(undefined);
-            }}
-            className="w-full rounded-md border border-border px-2 py-1.5 text-xs text-muted hover:text-foreground"
-          >
-            Reset
-          </button>
+        <div
+          className={
+            "flex flex-wrap items-center justify-between gap-2 border-t px-4 py-2 font-mono text-xs " +
+            (dark ? "border-[#292524] text-[#a8a29e]" : "border-[#e7e5e4] text-[#78716c]")
+          }
+        >
+          <span>value = {date ? dateLiteral(date) : "undefined"}</span>
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-border-soft px-4 py-3">
+        <div className="w-full sm:w-56">
+          <Select
+            label="component"
+            value={settings.component}
+            options={["calendar", "picker"] as const}
+            onChange={(v) => set("component", v)}
+          />
+        </div>
+        <div className="w-full sm:w-56">
+          <Select label="theme" value={settings.theme} options={["light", "dark"] as const} onChange={(v) => set("theme", v)} />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setSettings(DEFAULTS);
+            setDate(undefined);
+          }}
+          className="ml-auto rounded-md border border-border px-3 py-1 text-xs text-muted hover:text-foreground"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div className="grid gap-x-8 gap-y-5 p-4 sm:grid-cols-2">
+        <Group title="Props">
+          <Select label="locale" value={settings.locale} options={["en", "ne"] as const} onChange={(v) => set("locale", v)} />
+          <Select
+            label="numerals"
+            value={settings.numerals}
+            options={["auto", "latin", "devanagari"] as const}
+            onChange={(v) => set("numerals", v)}
+          />
+          <Select
+            label="dayShape"
+            value={settings.dayShape}
+            options={["circle", "rounded", "square"] as const}
+            onChange={(v) => set("dayShape", v)}
+          />
+          <Toggle label="showGregorianDate" checked={settings.showGregorianDate} onChange={(v) => set("showGregorianDate", v)} />
+          {!isPicker && <Toggle label="fixedWeeks" checked={settings.fixedWeeks} onChange={(v) => set("fixedWeeks", v)} />}
+          <Toggle label="disable Saturdays" checked={settings.disableSaturdays} onChange={(v) => set("disableSaturdays", v)} />
+          <div className="space-y-1.5 pt-1">
+            <span className={controlLabel}>minDate / maxDate</span>
+            <div className="grid gap-2">
+              <NepaliDatePicker
+                aria-label="minDate"
+                placeholder="minDate"
+                iconPosition="none"
+                clearable
+                value={settings.minDate}
+                onChange={(v) => set("minDate", v)}
+                className="w-full"
+              />
+              <NepaliDatePicker
+                aria-label="maxDate"
+                placeholder="maxDate"
+                iconPosition="none"
+                clearable
+                value={settings.maxDate}
+                onChange={(v) => set("maxDate", v)}
+                className="w-full"
+              />
+            </div>
+          </div>
+          {isPicker && (
+            <>
+              <Select
+                label="iconPosition"
+                value={settings.iconPosition}
+                options={["end", "start", "none"] as const}
+                onChange={(v) => set("iconPosition", v)}
+              />
+              <Toggle label="clearable" checked={settings.clearable} onChange={(v) => set("clearable", v)} />
+              <Toggle label="disabled" checked={settings.disabled} onChange={(v) => set("disabled", v)} />
+              <Toggle label="readOnly" checked={settings.readOnly} onChange={(v) => set("readOnly", v)} />
+            </>
+          )}
+        </Group>
+
+        <Group title={`Style (${settings.theme})`}>
+          {COLORS.map((color) => (
+            <label key={color.name} className="flex items-center justify-between gap-3">
+              <span className={controlLabel}>{color.label}</span>
+              <span className="flex items-center gap-2">
+                <code className="font-mono text-[10px] text-faint">{colorValue(settings, color)}</code>
+                <input
+                  type="color"
+                  aria-label={`${color.label} (${color.name})`}
+                  className="h-6 w-8 cursor-pointer rounded border border-border bg-transparent"
+                  value={colorValue(settings, color)}
+                  onChange={(e) =>
+                    set("colors", { ...settings.colors, [`${settings.theme}:${color.name}`]: e.target.value })
+                  }
+                />
+              </span>
+            </label>
+          ))}
+          {SIZES.map((size) => (
+            <label key={size.name} className="block space-y-1">
+              <span className="flex justify-between">
+                <span className={controlLabel}>{size.label}</span>
+                <code className="font-mono text-[10px] text-faint">{sizeValue(settings, size)}rem</code>
+              </span>
+              <input
+                type="range"
+                className="w-full accent-[var(--accent)]"
+                min={size.min}
+                max={size.max}
+                step={size.step}
+                value={sizeValue(settings, size)}
+                onChange={(e) => set("sizes", { ...settings.sizes, [size.name]: Number(e.target.value) })}
+              />
+            </label>
+          ))}
+          <Select label="font" value={settings.font} options={["inherit", "serif", "mono"] as const} onChange={(v) => set("font", v)} />
+        </Group>
+      </div>
+
       <div className="border-t border-border-soft p-4 pt-1">
-        <CodeBlock title={isPicker ? "DatePicker.tsx" : "Calendar.tsx"} code={generatedTsx(settings)} />
-        {css && <CodeBlock title="styles.css" code={css} />}
+        <CodeBlock title={isPicker ? "DatePicker.tsx" : "Calendar.tsx"} code={generatedTsx(settings)} lang="tsx" />
+        {css && <CodeBlock title="styles.css" code={css} lang="css" />}
       </div>
     </div>
   );
