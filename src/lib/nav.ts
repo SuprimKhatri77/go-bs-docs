@@ -149,6 +149,11 @@ const NAV: Record<LanguageId, SectionDef[]> = {
           slug: "getting-started",
           description: "Install bikram-sambat-react and render your first Bikram Sambat calendar and date picker.",
         },
+        {
+          title: "Playground",
+          slug: "playground",
+          description: "Try every prop and CSS variable of the calendar and date picker live, then copy the code.",
+        },
       ],
     },
     {

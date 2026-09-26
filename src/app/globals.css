@@ -123,7 +123,7 @@ a.anchor-heading {
 .prose a:not(.anchor-heading, .not-prose a):hover {
   text-decoration-color: var(--accent);
 }
-.prose > :not(pre) code {
+.prose > :not(pre):where(:not(.not-prose)) code {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
