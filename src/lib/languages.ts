@@ -5,6 +5,7 @@
  *
  *   /docs/api/conversion      Go
  *   /docs/ts/api/conversion   TypeScript
+ *   /docs/react/api/calendar  React (components built on the TypeScript package)
  *
  * Adding a language: add an entry here, its pages under
  * src/app/docs/<id>/, and its sidebar in nav.ts.
@@ -12,7 +13,7 @@
  * Imported by next.config.ts, so this file must only use relative imports.
  */
 
-export type LanguageId = "go" | "ts";
+export type LanguageId = "go" | "ts" | "react";
 
 export interface Language {
   id: LanguageId;
@@ -28,6 +29,11 @@ export interface Language {
   registry: { name: string; url: string };
   /** Brand colour of the language's logo. */
   color: string;
+  /**
+   * The programming language the package is written in, for structured
+   * data. Defaults to `name`; set when `name` is a framework (React).
+   */
+  programmingLanguage?: string;
 }
 
 export const LANGUAGES: Language[] = [
@@ -50,6 +56,17 @@ export const LANGUAGES: Language[] = [
     repoUrl: "https://github.com/SuprimKhatri77/bikram-sambat-ts",
     registry: { name: "npm", url: "https://www.npmjs.com/package/bikram-sambat-ts" },
     color: "#3178C6",
+  },
+  {
+    id: "react",
+    name: "React",
+    packageName: "bikram-sambat-react",
+    prefix: "/react",
+    aliases: ["react", "jsx", "tsx"],
+    repoUrl: "https://github.com/SuprimKhatri77/bikram-sambat-react",
+    registry: { name: "npm", url: "https://www.npmjs.com/package/bikram-sambat-react" },
+    color: "#58C4DC",
+    programmingLanguage: "TypeScript",
   },
 ];
 

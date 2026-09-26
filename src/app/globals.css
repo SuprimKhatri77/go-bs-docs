@@ -133,20 +133,22 @@ a.anchor-heading {
 .prose strong {
   font-weight: 600;
 }
-.prose table {
+/* :where() keeps specificity unchanged; live component demos (bikram-sambat-react)
+   sit in .not-prose and bring their own table styles. */
+.prose table:where(:not(.not-prose *)) {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
 }
-.prose th {
+.prose th:where(:not(.not-prose *)) {
   text-align: left;
   font-weight: 500;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
   padding: 0.5rem 1rem 0.5rem 0;
 }
-.prose td {
+.prose td:where(:not(.not-prose *)) {
   border-bottom: 1px solid var(--border);
   padding: 0.5rem 1rem 0.5rem 0;
   vertical-align: baseline;

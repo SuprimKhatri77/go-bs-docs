@@ -1,0 +1,80 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "Localization",
+  description:
+    "Show the bikram-sambat-react calendar and date picker in English or Nepali, with Latin or Devanagari digits and optional Gregorian (AD) dates.",
+  path: "/docs/react/guides/localization",
+});
+
+<DocsHeader
+  title="Localization"
+  description="English or Nepali labels, Latin or Devanagari digits, and Gregorian dates alongside."
+/>
+
+## Locale and numerals
+
+Two props control the language, on both components:
+
+- `locale`: `"en"` (the default) or `"ne"`. It sets month names, weekday names, and every button
+  and accessible label.
+- `numerals`: `"latin"` (0–9) or `"devanagari"` (०–९). It defaults to Devanagari for `locale="ne"`
+  and Latin otherwise, and can be set independently.
+
+```tsx
+<NepaliCalendar locale="ne" />                     // असोज २०८३, Devanagari digits
+<NepaliCalendar locale="ne" numerals="latin" />    // असोज 2083
+<NepaliCalendar numerals="devanagari" />           // Ashwin २०८३
+```
+
+<ReactDemo id="locale" />
+
+## What changes
+
+For 15 Ashwin 2083, shown with the default numerals for each locale:
+
+| Text                        | `locale="en"`                  | `locale="ne"`                  |
+| --------------------------- | ------------------------------ | ------------------------------ |
+| Month title                 | `Ashwin 2083`                  | `असोज २०८३`                     |
+| Weekday headers             | `Sun Mon Tue Wed Thu Fri Sat`  | `आइत सोम मंगल बुध बिहि शुक्र शनि` |
+| Day's accessible label      | `Thursday, 15 Ashwin 2083`     | `२०८३ असोज १५, बिहिवार`         |
+| Navigation buttons          | `Previous month` / `Next month` | `अघिल्लो महिना` / `अर्को महिना` |
+| Month and year selects      | `Month` / `Year`               | `महिना` / `वर्ष`                |
+| Date picker placeholder     | `YYYY-MM-DD`                   | `वर्ष-महिना-गते`                 |
+| Date picker's input text    | `2083-06-15`                   | `२०८३-०६-१५`                    |
+| Calendar button             | `Choose date`                  | `मिति छान्नुहोस्`                 |
+| Clear button                | `Clear date`                   | `मिति हटाउनुहोस्`                |
+
+The weekday headers show the short names; their full names (`Sunday`, `आइतवार`, …) are in each
+header's `<abbr title>`. The root element gets a matching `lang` attribute, so screen readers
+pronounce Nepali text correctly.
+
+Month and weekday names come from bikram-sambat-ts, spelled as Hamro Patro's calendar spells them
+(see [formatting](/docs/ts/api/formatting)).
+
+## Typing Nepali digits
+
+The date picker's input accepts either digit system, whatever `numerals` is set to: `2083-06-15`
+and `२०८३-०६-१५` both select 15 Ashwin 2083. Its hidden form value (with `name`) is always ASCII
+`YYYY-MM-DD`, so your server gets a parseable value in both locales.
+
+## Gregorian dates
+
+`showGregorianDate` adds each day's AD date in small text under the BS day number. In Nepali, the AD
+dates use Devanagari digits and Nepali month names too. They're also added to each day's accessible
+label:
+
+| `locale` | Accessible label of 15 Ashwin 2083                    |
+| -------- | ----------------------------------------------------- |
+| `"en"`   | `Thursday, 15 Ashwin 2083 (1 October 2026 AD)`        |
+| `"ne"`   | `२०८३ असोज १५, बिहिवार (ईस्वी २०२६ अक्टोबर १)`        |
+
+See the [demo](/docs/react/api/calendar#gregorian-dates) on the calendar page.
+
+<Callout>
+  **Note:** only English and Nepali are built in. The labels aren't configurable one by one yet; if
+  you need another language, or different wording, open an issue on
+  [GitHub](https://github.com/SuprimKhatri77/bikram-sambat-react/issues).
+</Callout>

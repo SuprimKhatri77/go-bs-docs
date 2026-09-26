@@ -1,0 +1,186 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, ApiEntry } from "@/components/Docs";
+
+export const metadata = docsMetadata({
+  title: "Types",
+  description:
+    "TypeScript types exported by bikram-sambat-react: BSDate, BSMonth, CalendarLocale, Numerals, DayShape, DayState, CalendarClassNames, DatePickerClassNames and the prop types for replaceable parts.",
+  path: "/docs/react/api/types",
+});
+
+<DocsHeader
+  title="Types"
+  description="Everything the package exports besides the two components, all importable from bikram-sambat-react."
+/>
+
+```ts
+import type {
+  BSDate,
+  BSMonth,
+  CalendarLocale,
+  Numerals,
+  DayShape,
+  DayState,
+  NepaliCalendarProps,
+  NepaliDatePickerProps,
+  CalendarClassNames,
+  DatePickerClassNames,
+  CalendarComponents,
+  DatePickerComponents,
+  NavButtonProps,
+  ChevronProps,
+  SelectProps,
+  SelectOption,
+  DayButtonProps,
+  IconProps,
+} from "bikram-sambat-react";
+```
+
+## Dates
+
+<ApiEntry lang="ts" signature="interface BSDate { year: number; month: number; day: number }">
+
+A Bikram Sambat date, re-exported from [bikram-sambat-ts](/docs/ts/api/date), so values move freely
+between the two packages. `month` is 1-based: 1 is Baisakh, 12 is Chaitra. It's a plain object:
+`{ year: 2083, month: 6, day: 15 }` is 15 Ashwin 2083.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="interface BSMonth { year: number; month: number }">
+
+A BS year and 1-based month: the calendar's `month`, `defaultMonth` and `onMonthChange`.
+
+</ApiEntry>
+
+## Display options
+
+<ApiEntry lang="ts" signature='type CalendarLocale = "en" | "ne"'>
+
+The language of month names, weekday names and every built-in label. See
+[localization](/docs/react/guides/localization).
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature='type Numerals = "latin" | "devanagari"'>
+
+The digits used for day numbers, years and the date picker's text: 0–9 or ०–९.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature='type DayShape = "circle" | "rounded" | "square"'>
+
+The shape of the day buttons with the default stylesheet.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="interface DayState { selected: boolean; today: boolean; disabled: boolean; focused: boolean }">
+
+The state of one day, passed to `renderDay` and to a custom `DayButton`:
+
+- `selected`: the day is the calendar's value.
+- `today`: the day is today (see the calendar's `today` prop).
+- `disabled`: the day can't be selected: it's outside `minDate`/`maxDate` or rejected by
+  `isDateDisabled`.
+- `focused`: the day is the keyboard focus target, the one day button with `tabIndex=0`.
+
+</ApiEntry>
+
+## Class names
+
+<ApiEntry lang="ts" signature="interface CalendarClassNames">
+
+One key per part of the calendar, each a `string`, passed as `Partial<CalendarClassNames>` to the
+`classNames` prop. Each class is added after the part's default `nc-*` class.
+
+| Key           | Part                                                  | Default class                 |
+| ------------- | ----------------------------------------------------- | ----------------------------- |
+| `root`        | the calendar                                          | `nc-calendar`                 |
+| `header`      | the row with the navigation and selects               | `nc-calendar-header`          |
+| `nav`         | both navigation buttons                               | `nc-calendar-nav`             |
+| `navPrevious` | the previous-month button                             | `nc-calendar-nav-previous`    |
+| `navNext`     | the next-month button                                 | `nc-calendar-nav-next`        |
+| `selects`     | the wrapper around the month and year selects         | `nc-calendar-selects`         |
+| `select`      | both selects                                          | `nc-calendar-select`          |
+| `selectMonth` | the month select                                      | `nc-calendar-select-month`    |
+| `selectYear`  | the year select                                       | `nc-calendar-select-year`     |
+| `grid`        | the `<table role="grid">`                             | `nc-calendar-grid`            |
+| `weekdays`    | the weekday header row                                | `nc-calendar-weekdays`        |
+| `weekday`     | each weekday header                                   | `nc-calendar-weekday`         |
+| `week`        | each week row                                         | `nc-calendar-week`            |
+| `cell`        | each cell, including empty ones (`data-empty`)        | `nc-calendar-cell`            |
+| `day`         | each day button                                       | `nc-calendar-day`             |
+| `dayNumber`   | the day number inside a day button                    | `nc-calendar-day-number`      |
+| `dayGregorian`| the AD date inside a day button                       | `nc-calendar-day-gregorian`   |
+| `selected`    | added to the selected day button                      | (none: styled via `data-selected`) |
+| `today`       | added to today's day button                           | (none: `data-today`)          |
+| `disabled`    | added to disabled day buttons                         | (none: `data-disabled`)       |
+| `focused`     | added to the day button with `tabIndex=0`             | (none: `data-focused`)        |
+| `icon`        | the built-in SVG icons                                | `nc-icon`                     |
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="interface DatePickerClassNames">
+
+The date picker's parts, passed as `Partial<DatePickerClassNames>`: `root` (`nc-date-picker`),
+`field` (`nc-date-picker-field`, the bordered row), `input` (`nc-date-picker-input`), `clear`
+(`nc-date-picker-clear`), `trigger` (`nc-date-picker-trigger`, the calendar button), `popover`
+(`nc-date-picker-popover`) and `icon` (`nc-icon`). The `calendar` key takes a
+`Partial<CalendarClassNames>` for the calendar inside the popover.
+
+</ApiEntry>
+
+## Replaceable parts
+
+These are the props your components receive through the `components` prop. See
+[replacing parts](/docs/react/guides/styling#replacing-parts) for how to use them.
+
+<ApiEntry lang="ts" signature="interface CalendarComponents">
+
+```ts
+interface CalendarComponents {
+  NavButton: (props: NavButtonProps) => ReactNode;
+  Chevron: (props: ChevronProps) => ReactNode;
+  Select: (props: SelectProps) => ReactNode;
+  DayButton: (props: DayButtonProps) => ReactNode;
+}
+```
+
+`DatePickerComponents` extends it with `TriggerIcon` and `ClearIcon`, both
+`(props: IconProps) => ReactNode`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature='interface NavButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { direction: "previous" | "next" }'>
+
+The previous and next month buttons. Spread everything except `direction` onto a `<button>`: the
+props carry its label, `disabled` state, class and click handler. `children` is the `Chevron`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature='interface ChevronProps { direction: "previous" | "next"; className: string | undefined }'>
+
+The arrow inside a navigation button.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature='interface SelectProps { kind: "month" | "year"; value: number; options: SelectOption[]; onChange: (value: number) => void; "aria-label": string; className: string | undefined }'>
+
+The month and year pickers. `options` are `{ value, label, disabled }` objects (months outside
+`minDate`/`maxDate` are disabled). Render any control, not only a `<select>`: show `value`, offer
+the options, and call `onChange` with the chosen option's `value`.
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="interface DayButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { date: BSDate; state: DayState; children?: ReactNode }">
+
+Each day's button. Spread everything except `date` and `state` onto the focusable element:
+`tabIndex`, `data-date`, the `aria-*` attributes and the handlers are what make keyboard navigation
+and screen readers work. `children` is the day number (or your `renderDay` content).
+
+</ApiEntry>
+
+<ApiEntry lang="ts" signature="interface IconProps { className: string | undefined }">
+
+The date picker's `TriggerIcon` and `ClearIcon`.
+
+</ApiEntry>

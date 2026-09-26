@@ -16,6 +16,13 @@ import { SITE_URL } from "@/lib/site";
 /** Components that only make sense in a browser; a `##` section containing one is dropped. */
 const INTERACTIVE = ["MonthCalendarWidget", "MonthCalendarWidgetTS"];
 
+/**
+ * Live demos that sit next to the code they run (the React pages); only
+ * the component line itself is dropped, since the surrounding code and text
+ * still make sense without it.
+ */
+const INLINE_INTERACTIVE = ["ReactDemo"];
+
 function attrs(tag: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const m of tag.matchAll(/(\w+)=(?:"([^"]*)"|'([^']*)')/g)) out[m[1]] = m[2] ?? m[3];
@@ -60,11 +67,23 @@ export function mdxToMarkdown(source: string): string {
     return `\u0000FENCE${fences.length - 1}\u0000`;
   });
 
+  // Inline code is literal text too: `<NepaliCalendar />` in a sentence isn't
+  // a component to convert (or to flag as unconverted).
+  const inline: string[] = [];
+  md = md.replace(/`[^`\n]+`/g, (code) => {
+    inline.push(code);
+    return `\u0000CODE${inline.length - 1}\u0000`;
+  });
+
   // Interactive-only sections.
   md = md
     .split(/(?=^## )/m)
     .filter((section) => !INTERACTIVE.some((name) => section.includes(`<${name}`)))
     .join("");
+
+  for (const name of INLINE_INTERACTIVE) {
+    md = md.replace(new RegExp(`^[ \\t]*<${name}\\b[^>]*\\/>[ \\t]*$`, "gm"), "");
+  }
 
   md = md.replace(/<DocsHeader([\s\S]*?)\/>/g, (_, a) => {
     const { title, description } = attrs(a);
@@ -73,7 +92,10 @@ export function mdxToMarkdown(source: string): string {
 
   md = md.replace(/<ApiEntry((?:\s+\w+=(?:"[^"]*"|'[^']*'))+)\s*>([\s\S]*?)<\/ApiEntry>/g, (_, a, body) => {
     const { signature, lang = "go" } = attrs(a);
-    return "```" + lang + "\n" + signature.trim() + "\n```\n\n" + dedent(body).trim();
+    // The signature becomes a code block, protected like the others: TypeScript
+    // generics (`ButtonHTMLAttributes<HTMLButtonElement>`) aren't components.
+    fences.push("```" + lang + "\n" + signature.trim() + "\n```");
+    return `\u0000FENCE${fences.length - 1}\u0000\n\n` + dedent(body).trim();
   });
 
   md = md.replace(/<Callout([^>]*)>([\s\S]*?)<\/Callout>/g, (_, a, body) => {
@@ -85,6 +107,7 @@ export function mdxToMarkdown(source: string): string {
   const leftover = md.match(/<\/?[A-Z]\w*/);
   if (leftover) throw new Error(`mdxToMarkdown: unconverted component ${leftover[0]}`);
 
+  md = md.replace(/\u0000CODE(\d+)\u0000/g, (_, i) => inline[Number(i)]);
   md = md.replace(/\u0000FENCE(\d+)\u0000/g, (_, i) => fences[Number(i)]);
   md = absoluteLinks(md);
   return md.replace(/\n{3,}/g, "\n\n").trim() + "\n";

@@ -1,0 +1,145 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "Building your own picker",
+  description:
+    "Build a custom Bikram Sambat date picker by composing NepaliCalendar with your own trigger button, popover library or text input.",
+  path: "/docs/react/guides/custom-picker",
+});
+
+<DocsHeader
+  title="Building your own picker"
+  description="NepaliDatePicker is a convenience. For your own trigger, popover or layout, put NepaliCalendar inside it."
+/>
+
+`NepaliCalendar` has everything a picker needs: `autoFocus` to take focus when it opens, and
+`onChange` on every selection (including the already selected day) to close it. The rest is your
+trigger and your popover.
+
+## A button that opens a calendar
+
+This picker is a single button showing the date. It closes on a selection, on Escape and on a click
+outside, and returns focus to the button:
+
+```tsx
+import { useEffect, useRef, useState } from "react";
+import { formatBsDate, type BSDate } from "bikram-sambat-ts";
+import { NepaliCalendar } from "bikram-sambat-react";
+
+export function ButtonDatePicker() {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<BSDate>();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Close on a click outside.
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  const close = () => {
+    setOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        {date ? formatBsDate(date, "D MMMM YYYY") : "Pick a date"}
+      </button>
+      {open && (
+        <div
+          role="dialog"
+          aria-label="Choose a date"
+          className="absolute left-0 top-full z-20 mt-2"
+          onKeyDown={(event) => event.key === "Escape" && close()}
+        >
+          <NepaliCalendar
+            autoFocus
+            value={date}
+            onChange={(next) => {
+              setDate(next);
+              close();
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+<ReactDemo id="custom-picker" />
+
+After picking 15 Ashwin 2083, the button reads "15 Ashwin 2083". `formatBsDate` takes any
+[layout](/docs/ts/api/formatting), in English or Nepali.
+
+## With a popover library
+
+The same idea works inside any popover or dialog component: render the calendar in its content,
+pass `autoFocus`, and close from `onChange`. With a typical controlled popover:
+
+```tsx
+<Popover open={open} onOpenChange={setOpen}>
+  <Popover.Trigger>{date ? formatBsDate(date) : "Pick a date"}</Popover.Trigger>
+  <Popover.Content>
+    <NepaliCalendar
+      autoFocus
+      value={date}
+      onChange={(next) => {
+        setDate(next);
+        setOpen(false);
+      }}
+    />
+  </Popover.Content>
+</Popover>
+```
+
+The library then handles positioning, Escape and returning focus. Keyboard navigation inside the
+calendar works the same in any container.
+
+<Callout>
+  **Note:** some popover libraries move focus into their content by themselves when they open,
+  usually to its first focusable element (here, the previous-month button). If yours does, turn that
+  off, so the calendar's `autoFocus` puts focus on the selected day or today.
+</Callout>
+
+## Adding a text input
+
+For a typed input next to your own trigger, use bikram-sambat-ts's `parseBsDate` and
+`formatBsDate`, which read and write the same `YYYY-MM-DD` text:
+
+```ts
+import { formatBsDate, fromNepaliDigits, parseBsDate, type BSDate } from "bikram-sambat-ts";
+
+function parseInput(text: string): BSDate | undefined {
+  try {
+    // Accept Devanagari digits too: "२०८३-०६-१५" → "2083-06-15".
+    return parseBsDate(fromNepaliDigits(text.trim()));
+  } catch {
+    return undefined; // incomplete or invalid: keep the previous date
+  }
+}
+
+parseInput("2083-06-15"); // { year: 2083, month: 6, day: 15 }
+formatBsDate({ year: 2083, month: 6, day: 15 }); // "2083-06-15"
+```
+
+<Callout>
+  **Tip:** before building your own, check `NepaliDatePicker`'s
+  [`iconPosition`](/docs/react/api/date-picker#icon-position), `classNames` and `components`
+  props. Moving or removing the button, and restyling every part, doesn't need a custom picker.
+</Callout>

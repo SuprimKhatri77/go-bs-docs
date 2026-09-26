@@ -1,0 +1,132 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader, Callout } from "@/components/Docs";
+import { ReactDemo } from "@/components/ReactDemos";
+
+export const metadata = docsMetadata({
+  title: "Getting started",
+  description:
+    "Install bikram-sambat-react and add an accessible Bikram Sambat (Nepali) calendar and date picker to a React, Next.js or Vite app. Keyboard navigation, Nepali labels, fully customizable styles.",
+  path: "/docs/react/getting-started",
+});
+
+<DocsHeader
+  title="Getting started"
+  description="Install bikram-sambat-react and render your first Bikram Sambat calendar and date picker."
+/>
+
+bikram-sambat-react is a set of React components for choosing and showing Bikram Sambat (BS) dates:
+a month calendar, `<NepaliCalendar />`, and a date picker, `<NepaliDatePicker />`. It's the UI layer
+of [bikram-sambat-ts](/docs/ts/getting-started), which does all of the calendar work (conversion,
+month lengths, weekdays, date arithmetic and formatting). The components add interaction,
+accessibility and presentation, and contain no calendar data of their own.
+
+- Full keyboard navigation and screen-reader labels, following the WAI-ARIA date picker pattern
+- English or Nepali labels, with Latin or Devanagari digits
+- Controlled or uncontrolled, with `minDate`, `maxDate` and custom disabled days
+- A polished default look you can restyle completely: CSS variables, per-part `classNames`
+  (Tailwind works), an `unstyled` mode, and replaceable parts
+- SSR-safe, including the Next.js App Router
+- BS 1979–2100, no network requests, and one runtime dependency (bikram-sambat-ts)
+
+## Install
+
+```sh
+npm install bikram-sambat-react
+# or
+pnpm add bikram-sambat-react
+yarn add bikram-sambat-react
+bun add bikram-sambat-react
+```
+
+bikram-sambat-ts is installed with it as a dependency. React and React DOM 18 or 19 are peer
+dependencies, so the components use your app's copy of React.
+
+## Import the styles
+
+Import the default stylesheet once, for example in your app's entry file or root layout:
+
+```tsx
+import "bikram-sambat-react/styles.css";
+```
+
+The components work without it, but unstyled. You can also skip it on purpose and
+[style everything yourself](/docs/react/guides/styling).
+
+## Your first calendar
+
+```tsx title="App.tsx"
+import { useState } from "react";
+import { NepaliCalendar, type BSDate } from "bikram-sambat-react";
+import "bikram-sambat-react/styles.css";
+
+export function App() {
+  const [date, setDate] = useState<BSDate | undefined>({ year: 2083, month: 6, day: 15 });
+  return <NepaliCalendar value={date} onChange={setDate} />;
+}
+```
+
+<ReactDemo id="calendar" />
+
+Click a day, or tab into the grid and use the arrow keys, PageUp/PageDown and Enter. The calendar
+highlights today and shows six week rows for every month, so its size never changes as you
+navigate.
+
+<Callout>
+  **Note:** BS months are 1-based: 1 is Baisakh, 12 is Chaitra. That's different from JavaScript's
+  `Date#getMonth()`, which is 0-based.
+</Callout>
+
+## Your first date picker
+
+```tsx
+import { useState } from "react";
+import { NepaliDatePicker, type BSDate } from "bikram-sambat-react";
+
+export function BirthDateField() {
+  const [date, setDate] = useState<BSDate>();
+  return (
+    <>
+      <label htmlFor="dob">Date of birth</label>
+      <NepaliDatePicker id="dob" value={date} onChange={setDate} clearable />
+    </>
+  );
+}
+```
+
+<ReactDemo id="date-picker" />
+
+Type a date as `YYYY-MM-DD`, or open the calendar with the button (or Alt+↓ in the input). A date
+is only committed once the text is complete and valid; clearing the text calls
+`onChange(undefined)`.
+
+## Working with the dates
+
+Both components use `BSDate`, the plain `{ year, month, day }` object from bikram-sambat-ts, so
+values go straight into its functions:
+
+```ts
+import { bsToAd, formatBsDate } from "bikram-sambat-ts";
+
+const date = { year: 2083, month: 6, day: 15 };
+
+formatBsDate(date, "dddd, D MMMM YYYY"); // "Thursday, 15 Ashwin 2083"
+bsToAd(date).toDateString(); // "Thu Oct 01 2026"
+```
+
+`BSDate` is re-exported by bikram-sambat-react, so you can import the type from either package.
+
+## Requirements
+
+- React and React DOM **18 or 19**
+- A bundler or runtime that supports ES modules. The package ships ESM with TypeScript
+  declarations and no CommonJS build; it's tested with Next.js (App Router) and Vite.
+- A modern browser. The default styles are built on CSS variables. Two touches are progressive
+  enhancements that older browsers simply skip: `:has()` for the invalid-input border, and
+  `text-box` for centering digits exactly inside the day shapes.
+
+## Where to next
+
+- [NepaliCalendar](/docs/react/api/calendar) and [NepaliDatePicker](/docs/react/api/date-picker)
+  cover every prop.
+- [Styling & customization](/docs/react/guides/styling) shows how to restyle or replace any part.
+- [SSR & Next.js](/docs/react/guides/ssr) covers server rendering and the App Router.
