@@ -21,7 +21,7 @@ const INTERACTIVE = ["MonthCalendarWidget", "MonthCalendarWidgetTS"];
  * the component line itself is dropped, since the surrounding code and text
  * still make sense without it.
  */
-const INLINE_INTERACTIVE = ["ReactDemo"];
+const INLINE_INTERACTIVE = ["ReactDemo", "ReactPlayground"];
 
 function attrs(tag: string): Record<string, string> {
   const out: Record<string, string> = {};

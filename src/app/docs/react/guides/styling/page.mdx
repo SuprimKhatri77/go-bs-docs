@@ -38,8 +38,9 @@ as plain, accessible markup.
 
 ## CSS variables
 
-The default stylesheet reads its colors and sizes from CSS variables on `.nc-calendar` and
-`.nc-date-picker`. Override any of them there, or on an ancestor:
+The default stylesheet reads its colors and sizes from CSS variables, declared on `.nc-calendar`
+and `.nc-date-picker` themselves. Override them with your own rule for those classes, loaded after
+the default stylesheet:
 
 ```css
 .nc-calendar,
@@ -69,6 +70,9 @@ The default stylesheet reads its colors and sizes from CSS variables on `.nc-cal
 | `--nc-cell-size`          | width and height of each day cell                   | `2.5rem`      |              |
 | `--nc-font`               | font family                                         | `inherit`     |              |
 
+Because the variables are declared on the components, setting them on a parent element has no
+effect. To theme only some calendars, scope the rule instead: `.checkout .nc-calendar { … }`.
+
 Saturday, the weekly holiday in Nepal, is shown in `--nc-primary`, like on Nepali wall calendars.
 
 ## Dark mode
@@ -78,8 +82,12 @@ covers Tailwind, next-themes and most docs sites, or to a component given `class
 It doesn't follow `prefers-color-scheme` on its own, so it never turns dark on a light page. The
 demos on this site switch with the site's theme toggle.
 
+`nc-dark` only darkens the element it's on. On a `NepaliDatePicker`, that's the field; its
+popover's calendar is a separate element, so either use a dark ancestor (which covers both), or
+also pass `classNames={{ calendar: { root: "nc-dark" } }}`.
+
 To follow the operating system instead, copy the dark values from the table above into a
-`@media (prefers-color-scheme: dark)` block.
+`@media (prefers-color-scheme: dark)` block, in a rule for `.nc-calendar, .nc-date-picker`.
 
 ## Day shape
 

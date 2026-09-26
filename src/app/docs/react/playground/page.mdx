@@ -1,0 +1,28 @@
+import { docsMetadata } from "@/lib/site";
+import { DocsHeader } from "@/components/Docs";
+import { ReactPlayground } from "@/components/ReactPlayground";
+
+export const metadata = docsMetadata({
+  title: "Playground",
+  description:
+    "Try bikram-sambat-react's Nepali calendar and date picker live: change props like locale, numerals, dayShape and minDate, edit the CSS variables, and copy the generated code.",
+  path: "/docs/react/playground",
+});
+
+<DocsHeader
+  title="Playground"
+  description="Change props and styles, see the component update live, and copy the code that reproduces it."
+/>
+
+Everything below runs the published bikram-sambat-react package. Pick the calendar or the date
+picker, change its props, and adjust the colors and sizes of the default stylesheet. The code
+underneath always reproduces what you see: the component with the props you changed, and a CSS
+rule with just the variables you edited.
+
+<ReactPlayground />
+
+A few things the playground doesn't cover, because they need your own code:
+[`classNames`](/docs/react/guides/styling#classnames) and [`unstyled`](/docs/react/guides/styling#unstyled)
+for styling with your own classes or Tailwind, [`components`](/docs/react/guides/styling#replacing-parts)
+for replacing parts, and [`renderDay`](/docs/react/api/calendar#custom-day-content) for custom day
+content.
