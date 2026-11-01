@@ -32,6 +32,7 @@ const DEMOS = {
   calendar: CalendarDemo,
   "date-picker": DatePickerDemo,
   "icon-position": IconPositionDemo,
+  typing: TypingDemo,
   "min-max": MinMaxDemo,
   gregorian: GregorianDemo,
   locale: LocaleDemo,
@@ -92,6 +93,35 @@ function DatePickerDemo() {
           Date of birth
         </label>
         <NepaliDatePicker id="demo-dob" value={date} onChange={setDate} clearable />
+      </div>
+    </Frame>
+  );
+}
+
+function TypingDemo() {
+  const [masked, setMasked] = useState<BSDate>();
+  const [free, setFree] = useState<BSDate>();
+  return (
+    <Frame
+      output={
+        <>
+          masked value = {show(masked)}
+          <br />
+          mask={"{false}"} value = {show(free)}
+        </>
+      }
+    >
+      <div>
+        <label htmlFor="demo-typing-mask" className={fieldLabel}>
+          mask (default)
+        </label>
+        <NepaliDatePicker id="demo-typing-mask" value={masked} onChange={setMasked} clearable />
+      </div>
+      <div>
+        <label htmlFor="demo-typing-free" className={fieldLabel}>
+          mask={"{false}"}
+        </label>
+        <NepaliDatePicker id="demo-typing-free" value={free} onChange={setFree} mask={false} clearable />
       </div>
     </Frame>
   );
