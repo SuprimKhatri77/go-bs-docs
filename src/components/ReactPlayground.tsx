@@ -68,6 +68,7 @@ interface Settings {
   maxDate: BSDate | undefined;
   disableSaturdays: boolean;
   iconPosition: IconPosition;
+  mask: boolean;
   clearable: boolean;
   disabled: boolean;
   readOnly: boolean;
@@ -88,6 +89,7 @@ const DEFAULTS: Settings = {
   maxDate: undefined,
   disableSaturdays: false,
   iconPosition: "end",
+  mask: true,
   clearable: false,
   disabled: false,
   readOnly: false,
@@ -157,6 +159,7 @@ function generatedTsx(settings: Settings): string {
   if (settings.disableSaturdays) props.push("isDateDisabled={(date) => getBsDayOfWeek(date) === 6}");
   if (isPicker) {
     if (settings.iconPosition !== "end") props.push(`iconPosition="${settings.iconPosition}"`);
+    if (!settings.mask) props.push("mask={false}");
     if (settings.clearable) props.push("clearable");
     if (settings.disabled) props.push("disabled");
     if (settings.readOnly) props.push("readOnly");
@@ -377,6 +380,7 @@ export function ReactPlayground() {
                 value={date}
                 onChange={setDate}
                 iconPosition={settings.iconPosition}
+                mask={settings.mask}
                 clearable={settings.clearable}
                 disabled={settings.disabled}
                 readOnly={settings.readOnly}
@@ -469,6 +473,7 @@ export function ReactPlayground() {
                 options={["end", "start", "none"] as const}
                 onChange={(v) => set("iconPosition", v)}
               />
+              <Toggle label="mask" checked={settings.mask} onChange={(v) => set("mask", v)} />
               <Toggle label="clearable" checked={settings.clearable} onChange={(v) => set("clearable", v)} />
               <Toggle label="disabled" checked={settings.disabled} onChange={(v) => set("disabled", v)} />
               <Toggle label="readOnly" checked={settings.readOnly} onChange={(v) => set("readOnly", v)} />
